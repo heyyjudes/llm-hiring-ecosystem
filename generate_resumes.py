@@ -34,6 +34,7 @@ together_api_key = config['services']['together']['api_key'] # replace with open
 df = pd.read_parquet('data/resumes.parquet', engine='pyarrow')
 
 java_dev_occupation_df = df[df["Position"]=="Java Developer"]
+print(f"imported data & libraries", flush=True)
 
 def create_modified_resumes(unmodifiedresumes, num_of_resumes, originalposition):
     # example usage of Together AI 
@@ -51,7 +52,7 @@ def create_modified_resumes(unmodifiedresumes, num_of_resumes, originalposition)
         output = output[output.find("\n"):output.rfind('\n')]
         output = "".join("".join(output.split('\r\n')).split('\n'))
         modifiedresumes.append(output)
-        print("done 1 resume")
+        print("done 1 resume", flush=True)
     with open(originalposition+'to'+position+'.txt', 'w') as f:
         for resume in modifiedresumes:
             f.write(f"{resume}\n")

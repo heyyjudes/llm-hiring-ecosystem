@@ -1,2 +1,5 @@
 *.yaml
 .idea/
+/data
+llm_api_keys.yaml
+*.sh
