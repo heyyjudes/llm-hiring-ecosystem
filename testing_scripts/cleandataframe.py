@@ -63,4 +63,4 @@ if __name__ == "__main__":
     labeled_df = filtered_df.copy()
     labeled_df["True Label"] = labeled_df.apply(trueLabelFunction, axis=1)
     labeled_df = labeled_df[labeled_df["True Label"].notna()]    # Filter out rows whose label value is NA
-    labeled_df.to_csv("Filtered_Truth_label.csv")   
+    labeled_df.to_csv("data/Filtered_Truth_label.csv")   

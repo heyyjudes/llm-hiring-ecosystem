@@ -67,5 +67,5 @@ if __name__ == "__main__":
     labeled_df = labeled_df[labeled_df["True Label"].notna()] 
 
     generated_resumes = create_modified_resumes(labeled_df, len(labeled_df), 'Project Manager')
-    generated_resumes.to_csv("withgeneratedresumes.csv")
+    generated_resumes.to_csv("data/withgeneratedresumes.csv")
     
