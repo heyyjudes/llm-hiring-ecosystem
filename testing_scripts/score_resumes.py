@@ -39,7 +39,9 @@ def get_score(resume_string, job_description_string):
         collection_name="demo_collection", query_text=job_description_string
     )
     #logger.info("Finished getting similarity score")
-    return search_result
+    similarity_score = round(search_result[0].score * 100, 2)
+    
+    return similarity_score 
 
 #Wrapper to perform get_score on a list of resumes (from data_frame labeled).
 def append_scores(dataframe_labeled, job_description, job_title):
@@ -48,8 +50,7 @@ def append_scores(dataframe_labeled, job_description, job_title):
     counter=0
     for index, row in dataframe_labeled.iterrows():
         resumm = "".join(row.to_dict()['CV'].split('\r\n')).split('\n')
-        score_result = get_score("".join(resumm), job_description)
-        similarity_score = round(score_result[0].score * 100, 2)
+        similarity_score = get_score("".join(resumm), job_description)
         scores[counter] = similarity_score
         print(similarity_score, row['Position'], flush=True)
         counter+=1

@@ -18,7 +18,6 @@ import sklearn.metrics as metrics
 # TODO: do all the modified resumes reach the threshold for classification as hire/interview? 
 #Modify Java Resumes - see if accepted
 
-
 with open('llm_api_keys.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
@@ -50,6 +49,8 @@ def create_modified_resumes(dataframe, num_of_resumes, newposition):
         all_modified_resumes[counter] = modify_resume("".join(resumm), newposition)
         print(index, flush=True)
         counter+=1
+        if counter > num_of_resumes:
+            break
     dataframe[newposition+" Modified CV"] = all_modified_resumes
     return dataframe
 
