@@ -5,3 +5,4 @@ llm_api_keys.yaml
 *.sh
 cc.en.300.bin
 test-notebook.ipynb
+/testing_scripts/__pycache__
