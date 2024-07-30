@@ -51,6 +51,8 @@ def create_modified_resumes(dataframe, num_of_resumes, newposition):
         counter+=1
         if counter > num_of_resumes:
             break
+
+    #Returns dataframe with extra column with extra modified resumes.
     dataframe[newposition+" Modified CV"] = all_modified_resumes
     return dataframe
 
