@@ -3,3 +3,5 @@
 /data
 llm_api_keys.yaml
 *.sh
+cc.en.300.bin
+test-notebook.ipynb
