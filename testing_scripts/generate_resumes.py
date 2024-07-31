@@ -65,32 +65,32 @@ def tailor_resume(input_resume: str, job_description: str, model_request_callabl
     # output = "".join("".join(output.split('\r\n')).split('\n'))
     # return output
 
-# def create_modified_resumes(dataframe, num_of_resumes, newposition):
-#     # example usage of Together AI 
-#     all_modified_resumes = [0 for i in range(0, len(dataframe))]
-#     counter = 0
-#     for index, row in dataframe.iterrows():
-#         resumm = "".join(row.to_dict()['CV'].split('\r\n')).split('\n')
-#         all_modified_resumes[counter] = modify_resume("".join(resumm), newposition)
-#         print(index, flush=True)
-#         counter+=1
-#         if counter > num_of_resumes:
-#             break
+def create_modified_resumes(dataframe, num_of_resumes, newposition):
+         # example usage of Together AI 
+     all_modified_resumes = [0 for i in range(0, len(dataframe))]
+     counter = 0
+     for index, row in dataframe.iterrows():
+         resumm = "".join(row.to_dict()['CV'].split('\r\n')).split('\n')
+         all_modified_resumes[counter] = modify_resume("".join(resumm), newposition)
+         print(index, flush=True)
+         counter+=1
+         if counter > num_of_resumes:
+             break
 
 #     #Returns dataframe with extra column with extra modified resumes.
-#     dataframe[newposition+" Modified CV"] = all_modified_resumes
-#     return dataframe
+     dataframe[newposition+" Modified CV"] = all_modified_resumes
+     return dataframe
 
-# if __name__ == "__main__":
-#     from cleandataframe import trueLabelFunction
-#     df = pd.read_parquet('data/resumes.parquet', engine='pyarrow')  # raw dataframe
-#     # Filter the dataframe minimum cv length
-#     MIN_CV_LENGTH = 500
-#     filtered_df = df.loc[df['CV'].dropna().apply(len) >= MIN_CV_LENGTH]
-#     labeled_df = filtered_df.copy()
-#     labeled_df["True Label"] = labeled_df.apply(trueLabelFunction, axis=1)
-#     labeled_df = labeled_df[labeled_df["True Label"].notna()] 
+if __name__ == "__main__":
+     from cleandataframe import trueLabelFunction
+     df = pd.read_parquet('data/resumes.parquet', engine='pyarrow')  # raw dataframe
+     # Filter the dataframe minimum cv length
+     MIN_CV_LENGTH = 500
+     filtered_df = df.loc[df['CV'].dropna().apply(len) >= MIN_CV_LENGTH]
+     labeled_df = filtered_df.copy()
+     labeled_df["True Label"] = labeled_df.apply(trueLabelFunction, axis=1)
+     labeled_df = labeled_df[labeled_df["True Label"].notna()] 
 
-#     generated_resumes = create_modified_resumes(labeled_df, len(labeled_df), 'Project Manager')
-#     generated_resumes.to_csv("data/withgeneratedresumes.csv")
+     generated_resumes = create_modified_resumes(labeled_df, len(labeled_df), 'Project Manager')
+     generated_resumes.to_csv("data/withgeneratedresumes.csv")
     
