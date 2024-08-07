@@ -44,7 +44,7 @@ def tailor_resume(input_resume: str, job_description: str, model_request_callabl
     This function accepts an input resume, a job description, and a model request function
     The function uses the model to tailor the resume toward the job description
     '''
-    prompt: str = "Tailor my resume to this job description and not make anything up:" + job_description + "and this is my resume:" + input_resume
+    prompt: str = "Tailor my resume to this job description and do not make anything up:" + job_description + "and this is my resume:" + input_resume
     output: str = model_request_callable(prompt)
 
     return output
