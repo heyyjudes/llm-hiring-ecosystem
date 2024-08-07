@@ -3,25 +3,26 @@ import re
 
 # Assign each entry in the filtered dataframe a label (0 for negative, 1 for positive)
 POSITIVE_LABEL, NEGATIVE_LABEL = 1, 0
-'''
-Given a row of the dataframe, returns 
-    1 if the entry belongs to the positive class
-    0 if the entry belongs to the negative class
-    NA if the entry is to be excluded
-Can be thought of as "h" (although this function does not operate on a feature vector)
-
-Currently, the positive class are entries where
-   1. The primary keyword is "Project manager" (case insensitive) AND  
-   2. The position contains "Project manager" (case insensitive),
-while the negative class are entries where
-   1. The primary keyword is "Java Developer" (case insensitive) AND  
-   2. The position contains "Java Developer" (case insensitive),
-
-Examine the effect of the second condition with
-   print(labeled_df.loc[ (labeled_df["True Label"] == NEGATIVE_LABEL) & (labeled_df["Primary Keyword"] == PM) ])
-'''
 
 def trueLabelFunction(row):
+    '''
+    Given a row of the dataframe, returns 
+        1 if the entry belongs to the positive class
+        0 if the entry belongs to the negative class
+        NA if the entry is to be excluded
+    Can be thought of as "h" (although this function does not operate on a feature vector)
+
+    Currently, the positive class are entries where
+    1. The primary keyword is "Project manager" (case insensitive) AND  
+    2. The position contains "Project manager" (case insensitive),
+    while the negative class are entries where
+    1. The primary keyword is "Java Developer" (case insensitive) AND  
+    2. The position contains "Java Developer" (case insensitive),
+
+    Examine the effect of the second condition with
+    print(labeled_df.loc[ (labeled_df["True Label"] == NEGATIVE_LABEL) & (labeled_df["Primary Keyword"] == PM) ])
+    '''
+
     # print(f"id = {row['id']}, Position = {row['Position']}, Primary Keyword = {row['Primary Keyword']}")
     
     POSITIVE_POSITION = "Project Manager"
