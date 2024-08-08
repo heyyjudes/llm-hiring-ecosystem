@@ -1,6 +1,7 @@
-*.yaml
+llm_api_keys.yaml*.yaml
 .idea/
-/data
+/data/resumes.parquet
+/data/.*
 llm_api_keys.yaml
 *.sh
 cc.en.300.bin
