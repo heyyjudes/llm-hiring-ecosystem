@@ -38,6 +38,8 @@ def request_from_Together(prompt: str) -> str:
     output = response.choices[0].message.content
     return output
 
+
+
 NUM_RESUMES_GENERATED = 0
 
 def tailor_resume(input_resume: str, job_description: str, model_name: str, verbose: bool = False) -> str:
@@ -74,7 +76,7 @@ def tailor_resume(input_resume: str, job_description: str, model_name: str, verb
     # output = "".join("".join(output.split('\r\n')).split('\n'))
     # return output
 
-def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_description: str) -> str:
+def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_description: str, verbose: bool = False) -> str:
     '''
     Given a labeled_df, create a new column and generate resumes tailored the provided job using the model with the provided model name
     Only affects the entries marked for experiments
@@ -94,7 +96,7 @@ def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_desc
     labeled_df[column_name] = pd.NA
 
     # Generate tailored resumes on only the entries marked for experiments
-    generate = lambda resume : tailor_resume(input_resume = resume, job_description = job_description, model_name = model_name, verbose = True)
+    generate = lambda resume : tailor_resume(input_resume = resume, job_description = job_description, model_name = model_name, verbose = verbose)
     # generate = lambda resume : "#1 victory royale"
     labeled_df.loc[labeled_df["Marked for Experiments"], column_name] = labeled_df.loc[labeled_df["Marked for Experiments"], "CV"].apply(generate)
 
@@ -115,7 +117,9 @@ if __name__ == "__main__":
     
     create_modified_resumes(labeled_df = labeled_df, 
                             model_name = "Together", 
-                            job_name = BITS_ORCHESTRA_PM_JOB_NAME, job_description = BITS_ORCHESTRA_PM_JOB_DESCRIPTION)
+                            job_name = BITS_ORCHESTRA_PM_JOB_NAME,
+                            job_description = BITS_ORCHESTRA_PM_JOB_DESCRIPTION,
+                            verbose = True)
     print(f"Finished generating tailored resumes for {BITS_ORCHESTRA_PM_JOB_NAME}\n")
 
     # Export
