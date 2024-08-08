@@ -17,7 +17,7 @@ from together import Together
 # import sklearn.metrics as metrics
 
 # TODO: do all the modified resumes reach the threshold for classification as hire/interview? 
-#Modify Java Resumes - see if accepted
+# pModify Java Resumes - see if accepted
 
 with open('llm_api_keys.yaml', 'r') as file:
     config = yaml.safe_load(file)
@@ -38,66 +38,91 @@ def request_from_Together(prompt: str) -> str:
     output = response.choices[0].message.content
     return output
 
-def tailor_resume(input_resume: str, job_description: str, model_name: str) -> str:
+NUM_RESUMES_GENERATED = 0
+
+def tailor_resume(input_resume: str, job_description: str, model_name: str, verbose: bool = False) -> str:
     '''
     This function accepts an input resume, a job description, and a model name (since different models may require different prompts)
     The function uses the model to tailor the resume toward the job description
         The function fails an assertion if the inputed model is not one of the listed models
     '''
+    global NUM_RESUMES_GENERATED
     
     MODEL_NAME_LIST: list[str] = ["Together"]
 
     assert model_name in MODEL_NAME_LIST, f"Error: model_name ({model_name}) must be in {MODEL_NAME_LIST}"
 
-    if model_name == "Together":
+    if verbose:
+        print(f"Generating a new tailored resume ({NUM_RESUMES_GENERATED} generated so far)...")
 
+    if model_name == "Together":
         # Design prompt
-        
         prompt: str = f"Tailor my resume to this job description and do not make anything up. It is imperative that you provide only the content of the CV without any additional explanations, notes, or comments."
         prompt += f" This is the job description: {job_description}"
         prompt += f" This is my resume: {input_resume}"
 
-        # Ask the model
-        model_request_callable: ModelRequestCallable = request_from_Together
-        output: str = model_request_callable(prompt)
-
-        return output
-
-    raise Exception("This should never be reached: make sure MODEL_NAME_LIST contains only supported models")
-
-    # client = Together(api_key=together_api_key) 
-    # job_description: str = "Product Manager (Multiple Levels) - Doordash: About the Team At DoorDash, we're redefining the future of on-demand delivery. To do this, we're building a world-class product organization, in which each of our product managers play a critical role in helping to define and execute our vision to connect local delivery networks in cities all across the world! About The Role Product Managers at DoorDash require a sharp consumer-first eye, platform thinking and strong cross-functional collaboration. As a Product Manager at DoorDash, you will own the product strategy and vision, define the product roadmap and alignment, and help drive the execution. You will be working on mission-critical products that shape the direction of the company. You will report into one of the following pillars: Merchant, Consumer, Operational Excellence, Ads, Logistics, or New Verticals. This role is a hybrid of remote work and in-person collaboration. You’re Excited About This Opportunity Because You Will… Drive the product definition, strategy, and long term vision. You own the roadmap Work closely with cross-functional teams of designers, operators, data scientists and engineers Communicate product plans, benefits and results to key stakeholders including leadership team We’re Excited About You Because… You have 5+ years of Product Management Industry Experience You have 4+ years of user-facing experience in industries such as eCommerce, technology or multi-sided marketplaces You have proven abilities in driving product strategy, vision, and roadmap alignment You’re an execution power-house You have experience presenting business reviews to senior executives You have empathy for the users you build for You are passionate about DoorDash and the problems we are solving for About DoorDash At DoorDash, our mission to empower local economies shapes how our team members move quickly, learn, and reiterate in order to make impactful decisions that display empathy for our range of users—from Dashers to merchant partners to consumers. We are a technology and logistics company that started with door-to-door delivery, and we are looking for team members who can help us go from a company that is known for delivering food to a company that people turn to for any and all goods. DoorDash is growing rapidly and changing constantly, which gives our team members the opportunity to share their unique perspectives, solve new challenges, and own their careers. We're committed to supporting employees’ happiness, healthiness, and overall well-being by providing comprehensive benefits and perks including premium healthcare, wellness expense reimbursement, paid parental leave and more. Our Commitment to Diversity and Inclusion We’re committed to growing and empowering a more inclusive community within our company, industry, and cities. That’s why we hire and cultivate diverse teams of people f"+"rom all backgrounds, experiences, and perspectives. We believe that true innovation happens when everyone has room at the table and the tools, resources, and opportunity to excel. Statement of Non-Discrimination: In keeping with our beliefs and goals, no employee or applicant will face discrimination or harassment based on: race, color, ancestry, national origin, religion, age, gender, marital/domestic partner status, sexual orientation, gender identity or expression, disability status, or veteran status. Above and beyond discrimination and harassment based on 'protected categories,' we also strive to prevent other subtler forms of inappropriate behavior (i.e., stereotyping) from ever gaining a foothold in our office. Whether blatant or hidden, barriers to success have no place at DoorDash. We value a diverse workforce – people who identify as women, non-binary or gender non-conforming, LGBTQIA+, American Indian or Native Alaskan, Black or African American, Hispanic or Latinx, Native Hawaiian or Other Pacific Islander, differently-abled, caretakers and parents, and veterans are strongly encouraged to apply. Thank you to the Level Playing Field Institute for this statement of non-discrimination. Pursuant to the San Francisco Fair Chance Ordinance, Los Angeles Fair Chance Initiative for Hiring Ordinance, and any other state or local hiring regulations, we will consider for employment any qualified applicant, including those with arrest and conviction records, in a manner consistent with the applicable regulation. If you need any accommodations, please inform your recruiting contact upon initial connection."
+    else:
+        raise Exception("This should never be reached: make sure MODEL_NAME_LIST contains only supported models")
     
-    # response = client.chat.completions.create(
-    #         model="mistralai/Mixtral-8x7B-Instruct-v0.1",
-    #         messages=[{"role": "user", "content": "Tailor my resume to this job description and not make anything up:" 
-    #                    + job_description + "and this is my resume:" + input}],
-    #                    #Modify the following resume to help me get a "+ position+" Job:" + resume}],
-    #     )
+    # Ask the model
+    model_request_callable: ModelRequestCallable = request_from_Together
+    output: str = model_request_callable(prompt)
+    NUM_RESUMES_GENERATED += 1
+    return output
 
-    #     #Trim out the AI conversation (I hope this faldskraewr! stuff).
-    # output = response.choices[0].message.content
     # output = output[output.find("\n"):output.rfind('\n')]
     # output = "".join("".join(output.split('\r\n')).split('\n'))
     # return output
 
-def create_modified_resumes(dataframe, num_of_resumes, newposition):
-         # example usage of Together AI 
-     all_modified_resumes = [0 for i in range(0, len(dataframe))]
-     counter = 0
-     for index, row in dataframe.iterrows():
-         resumm = "".join(row.to_dict()['CV'].split('\r\n')).split('\n')
-         all_modified_resumes[counter] = modify_resume("".join(resumm), newposition)
-         print(index, flush=True)
-         counter+=1
-         if counter > num_of_resumes:
-             break
+def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_description: str) -> str:
+    '''
+    Given a labeled_df, create a new column and generate resumes tailored the provided job using the model with the provided model name
+    Only affects the entries marked for experiments
+    Modifies the dataframe in place
 
-#     #Returns dataframe with extra column with extra modified resumes.
-     dataframe[newposition+" Modified CV"] = all_modified_resumes
-     return dataframe
+    TODO: right now, this recreates the column every time
+    Implement in a way that doesn't recreates the column
+    '''
+    # Check that not more than 1000 samples are marked for experiments
+    MAX_SAMPLES_ALLOWED = 1000
+    num_samples: int = len(labeled_df.loc[labeled_df["Marked for Experiments"]])
+    print(f"Number of samples marked for experiments = {num_samples}")
+    assert num_samples <= MAX_SAMPLES_ALLOWED, f"Number of samples marked for experiments ({num_samples}) > {MAX_SAMPLES_ALLOWED}"
+
+    # Create the new column initialized to NA
+    column_name: str = f"{model_name}-Improved {job_name} CV"
+    labeled_df[column_name] = pd.NA
+
+    # Generate tailored resumes on only the entries marked for experiments
+    generate = lambda resume : tailor_resume(input_resume = resume, job_description = job_description, model_name = model_name, verbose = True)
+    # generate = lambda resume : "#1 victory royale"
+    labeled_df.loc[labeled_df["Marked for Experiments"], column_name] = labeled_df.loc[labeled_df["Marked for Experiments"], "CV"].apply(generate)
+
+    return
 
 if __name__ == "__main__":
+    # Import the dataframe without the generated resumes
+    print("Starting reading labeled dataframe...")
+    labeled_df = pd.read_csv("data/labeled_df_without_generated_resumes.csv")
+    print("Finished reading labeled dataframe...\n")
+    
+
+    # Generate the tailored resumes
+    BITS_ORCHESTRA_PM_JOB_NAME = "Bits Orchestra PM"
+    BITS_ORCHESTRA_PM_JOB_DESCRIPTION = "A commitment to collaborative problem solving, agile thinking, and adaptability is essential. We are looking for a candidate who is able to balance a fast moving and changing environment with the ability to identify, investigate, and predict project risks Recruiting stages: HR interview, Tech interview **Core Responsibilities:** - Manage the full project life cycle including requirements gathering, creation of project plans and schedules, obtaining and managing resources, and facilitating project execution, deployment, and closure. - In cooperation with Technical Leads create and maintain comprehensive project documentation. - Manage Client expectations, monitor and increase CSAT level; - Plan, perform and implement process improvement initiatives. - Organize, lead, and facilitate cross-functional project teams. - Prepare weekly and monthly project status reports **What you need to Succeed:** - 1+ Year of dedicated Project Management in a production environment - Excellent organization and communication skills and the ability to communicate effectively with customers and co-workers. - Strong understanding of a Project Management Methodology (SDLC, Agile, Waterfall, etc.) - Creative mind with the ability to think outside-of-the-box. - The ability to manage multiple projects simultaneously - Experience with Jira or similar project management tool - Upper-intermediate level of English is a must"
+    # PAYMENT_SERVICE_PM_JOB_DESCRIPTION = "We are seeking a highly organized and experienced Senior Project Manager/Program Manager Responsibilities: - Develop and maintain project plans, including scope, timeline, resource allocation, and deliverables. - Monitor and control project progress, identify risks, and proactively implement mitigation strategies. - Lead a team of project managers, developers, testers, and other project resources. - Manage resource allocation, workload distribution, and capacity planning. - Writing technical specifications and documentation. - Communicate with partners and payment providers. - Have experience working on SAFe. Requirements: - Bachelor’s/Master’s degree in a relevant field (Computer Science, Information Technology, or similar). - Experience with acquiring, payments and gateway integration. - English — Upper intermediate. - Experience in integration of payment service providers like as Stripe, PayPal, LiqPay - Senior project manager experience with a strong history of successfully delivering engineering E-commerce projects for external clients. - Strong understanding of project management methodologies, tools, and techniques. - Excellent leadership and team management skills."
+    print(f"Starting generating tailored resumes for {BITS_ORCHESTRA_PM_JOB_NAME}")
+    
+    create_modified_resumes(labeled_df = labeled_df, 
+                            model_name = "Together", 
+                            job_name = BITS_ORCHESTRA_PM_JOB_NAME, job_description = BITS_ORCHESTRA_PM_JOB_DESCRIPTION)
+    print(f"Finished generating tailored resumes for {BITS_ORCHESTRA_PM_JOB_NAME}\n")
+
+    # Export
+    print(f"Starting export of new dataframe")
+    labeled_df.to_csv("data/labeled_df_with_generated_resumes.csv")
+    print(f"Finished export of new dataframe\n")
+
     #  from cleandataframe import trueLabelFunction
     #  df = pd.read_parquet('data/resumes.parquet', engine='pyarrow')  # raw dataframe
     #  # Filter the dataframe minimum cv length
