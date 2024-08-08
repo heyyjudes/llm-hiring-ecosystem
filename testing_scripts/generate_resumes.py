@@ -1,10 +1,8 @@
-import numpy as np
-import yaml
-import re
 import pandas as pd
-import seaborn as sns
-from typing import Callable
-from together import Together
+from . import constants
+# import seaborn as sns
+# import numpy as np
+# import re
 
 # %load_ext autoreload
 # %autoreload 2
@@ -19,27 +17,6 @@ from together import Together
 # TODO: do all the modified resumes reach the threshold for classification as hire/interview? 
 # pModify Java Resumes - see if accepted
 
-with open('llm_api_keys.yaml', 'r') as file:
-    config = yaml.safe_load(file)
-
-together_api_key = config['services']['together']['api_key'] 
-
-# A general function type for calling a model on a string prompt
-ModelRequestCallable = Callable[[str], str]
-
-# An example of a model request callable function, for the Together API key
-def request_from_Together(prompt: str) -> str:
-    client = Together(api_key=together_api_key) 
-    response = client.chat.completions.create(
-            model = "mistralai/Mixtral-8x7B-Instruct-v0.1",
-            messages = [{"role": "user", "content": prompt}],
-    )
-
-    output = response.choices[0].message.content
-    return output
-
-
-
 NUM_RESUMES_GENERATED = 0
 
 def tailor_resume(input_resume: str, job_description: str, model_name: str, verbose: bool = False) -> str:
@@ -50,9 +27,7 @@ def tailor_resume(input_resume: str, job_description: str, model_name: str, verb
     '''
     global NUM_RESUMES_GENERATED
     
-    MODEL_NAME_LIST: list[str] = ["Together"]
-
-    assert model_name in MODEL_NAME_LIST, f"Error: model_name ({model_name}) must be in {MODEL_NAME_LIST}"
+    assert model_name in constants.MODEL_NAME_TO_CALLABLE.keys(), f"Error: model_name ({model_name}) must be in {constants.MODEL_NAME_TO_CALLABLE.keys()}"
 
     if verbose:
         print(f"Generating a new tailored resume ({NUM_RESUMES_GENERATED} generated so far)...")
@@ -64,17 +39,13 @@ def tailor_resume(input_resume: str, job_description: str, model_name: str, verb
         prompt += f" This is my resume: {input_resume}"
 
     else:
-        raise Exception("This should never be reached: make sure MODEL_NAME_LIST contains only supported models")
+        raise Exception("This should never be reached: make sure the if statements only contain supported models")
     
     # Ask the model
-    model_request_callable: ModelRequestCallable = request_from_Together
+    model_request_callable = constants.MODEL_NAME_TO_CALLABLE[model_name]
     output: str = model_request_callable(prompt)
     NUM_RESUMES_GENERATED += 1
     return output
-
-    # output = output[output.find("\n"):output.rfind('\n')]
-    # output = "".join("".join(output.split('\r\n')).split('\n'))
-    # return output
 
 def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_description: str, verbose: bool = False) -> str:
     '''
