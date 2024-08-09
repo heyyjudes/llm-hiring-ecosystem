@@ -69,3 +69,5 @@ JOB_DESCRIPTION = BITS_ORCHESTRA_PM_JOB_DESCRIPTION
 # Given a model name and the job name, return a standard-format name for the CV type
 def tailored_CV_name(model_name: str, job_name: str) -> str:
     return f"{model_name}-Improved {job_name} CV"
+
+TAILORED_CV_NAME = tailored_CV_name(model_name = MODEL_NAME, job_name = JOB_NAME)
