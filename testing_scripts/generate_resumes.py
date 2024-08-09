@@ -47,7 +47,7 @@ def tailor_resume(input_resume: str, job_description: str, model_name: str, verb
     NUM_RESUMES_GENERATED += 1
     return output
 
-def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_description: str, verbose: bool = False) -> str:
+def create_modified_resumes(marked_df, model_name: str, job_name: str, job_description: str, verbose: bool = False, marked_only: bool = True) -> str:
     '''
     Given a labeled_df, create a new column and generate resumes tailored the provided job using the model with the provided model name
     Only affects the entries marked for experiments
@@ -57,20 +57,31 @@ def create_modified_resumes(labeled_df, model_name: str, job_name: str, job_desc
     Implement in a way that doesn't recreates the column
     '''
     # Check that not more than 1000 samples are marked for experiments
-    MAX_SAMPLES_ALLOWED = 1000
-    num_samples: int = len(labeled_df.loc[labeled_df["Marked for Experiments"]])
-    print(f"Number of samples marked for experiments = {num_samples}")
-    assert num_samples <= MAX_SAMPLES_ALLOWED, f"Number of samples marked for experiments ({num_samples}) > {MAX_SAMPLES_ALLOWED}"
+    if marked_only:
+        MAX_SAMPLES_ALLOWED = 1000
+        num_samples: int = len(marked_df.loc[marked_df["Marked for Experiments"]])
+        
+        if verbose:
+            print(f"Number of samples marked for experiments = {num_samples}")
+        assert num_samples <= MAX_SAMPLES_ALLOWED, f"Number of samples marked for experiments ({num_samples}) > {MAX_SAMPLES_ALLOWED}"
+    else:
+        if verbose:
+            print(f"Number of samples in total = {len(marked_df)}")
+
 
     # Create the new column initialized to NA
     column_name: str = f"{model_name}-Improved {job_name} CV"
-    labeled_df[column_name] = pd.NA
+    marked_df[column_name] = pd.NA
 
     # Generate tailored resumes on only the entries marked for experiments
     generate = lambda resume : tailor_resume(input_resume = resume, job_description = job_description, model_name = model_name, verbose = verbose)
     # generate = lambda resume : "#1 victory royale"
-    labeled_df.loc[labeled_df["Marked for Experiments"], column_name] = labeled_df.loc[labeled_df["Marked for Experiments"], "CV"].apply(generate)
-
+    
+    if marked_only:
+        marked_df.loc[marked_df["Marked for Experiments"], column_name] = marked_df.loc[marked_df["Marked for Experiments"], "CV"].apply(generate)
+    else:
+        marked_df.loc[column_name] = marked_df.loc["CV"].apply(generate)
+    
     return
 
 if __name__ == "__main__":
@@ -86,7 +97,7 @@ if __name__ == "__main__":
     # PAYMENT_SERVICE_PM_JOB_DESCRIPTION = "We are seeking a highly organized and experienced Senior Project Manager/Program Manager Responsibilities: - Develop and maintain project plans, including scope, timeline, resource allocation, and deliverables. - Monitor and control project progress, identify risks, and proactively implement mitigation strategies. - Lead a team of project managers, developers, testers, and other project resources. - Manage resource allocation, workload distribution, and capacity planning. - Writing technical specifications and documentation. - Communicate with partners and payment providers. - Have experience working on SAFe. Requirements: - Bachelor’s/Master’s degree in a relevant field (Computer Science, Information Technology, or similar). - Experience with acquiring, payments and gateway integration. - English — Upper intermediate. - Experience in integration of payment service providers like as Stripe, PayPal, LiqPay - Senior project manager experience with a strong history of successfully delivering engineering E-commerce projects for external clients. - Strong understanding of project management methodologies, tools, and techniques. - Excellent leadership and team management skills."
     print(f"Starting generating tailored resumes for {BITS_ORCHESTRA_PM_JOB_NAME}")
     
-    create_modified_resumes(labeled_df = labeled_df, 
+    create_modified_resumes(marked_df = labeled_df, 
                             model_name = "Together", 
                             job_name = BITS_ORCHESTRA_PM_JOB_NAME,
                             job_description = BITS_ORCHESTRA_PM_JOB_DESCRIPTION,
