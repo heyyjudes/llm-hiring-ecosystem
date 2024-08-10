@@ -11,10 +11,12 @@ Related to true labels
 POSITIVE_LABEL, NEGATIVE_LABEL = 1, 0       # Classification labels
 
 # Keywords for determining true labels
-POSITIVE_POSITION = "Project Manager"
-POSITIVE_KEYWORD = "Project Manager"
-NEGATIVE_POSITION = "QA Engineer"   # "Java Developer"
-NEGATIVE_KEYWORD = "QA"             # "Java"
+POSITIVE_POSITIONS = {"Project Manager"}
+POSITIVE_KEYWORDS = {"Project Manager"}
+# NEGATIVE_POSITION = "QA Engineer"   # "Java Developer"
+# NEGATIVE_KEYWORD = "QA"             # "Java"
+NEGATIVE_POSITIONS = {"UI/UX Designer", "UX/UI Designer"}
+NEGATIVE_KEYWORDS = {"Design"}
 
 '''
 ==================================================
