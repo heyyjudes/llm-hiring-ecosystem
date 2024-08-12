@@ -15,8 +15,10 @@ POSITIVE_POSITIONS = {"Project Manager"}
 POSITIVE_KEYWORDS = {"Project Manager"}
 # NEGATIVE_POSITION = {"QA Engineer"}   # "Java Developer"
 # NEGATIVE_KEYWORD = {"QA"}             # "Java"
-NEGATIVE_POSITIONS = {"UI/UX Designer", "UX/UI Designer"}
-NEGATIVE_KEYWORDS = {"Design"}
+# NEGATIVE_POSITIONS = {"UI/UX Designer", "UX/UI Designer"}
+# NEGATIVE_KEYWORDS = {"Design"}
+NEGATIVE_POSITIONS = {"Front-End", "Front End"}
+NEGATIVE_KEYWORDS = {"JavaScript"}
 
 '''
 ==================================================
