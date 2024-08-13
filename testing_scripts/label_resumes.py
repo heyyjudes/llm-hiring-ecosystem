@@ -1,9 +1,17 @@
 from . import constants
 import pandas as pd
 import re
+# from typing import Iterable
+from collections.abc import Iterable   # import directly from collections for Python < 3.3
 
 # Assign each entry in the filtered dataframe a label (0 for negative, 1 for positive, NA for neither)
-def get_true_label(row, positive_position: str, positive_keyword: str, negative_position: str, negative_keyword: str):
+def get_true_label(row, positive_positions: str | Iterable[str], 
+                        positive_keywords: str | Iterable[str], 
+                        negative_positions: str | Iterable[str], 
+                        negative_keywords: str | Iterable[str],
+                        verbose: bool = False):
+# def get_true_label(row, positive_position: str, positive_keyword: str, negative_position: str, negative_keyword: str):
+
     '''
     Given a row of the dataframe, returns 
         1 if the entry belongs to the positive class
@@ -22,20 +30,57 @@ def get_true_label(row, positive_position: str, positive_keyword: str, negative_
     print(labeled_df.loc[ (labeled_df["True Label"] == NEGATIVE_LABEL) & (labeled_df["Primary Keyword"] == PM) ])
     '''
 
-    # Positive match
-    positivePositionRegex = re.compile(f'.*{positive_position}.*', re.IGNORECASE)
-    isPositivePositionMatch: bool = isinstance(row["Position"], str) and bool(positivePositionRegex.match(row["Position"]))
-    positivePrimaryKeywordRegex = re.compile(f'{positive_keyword}', re.IGNORECASE)
-    isPositivePrimaryKeywordMatch: bool = isinstance(row["Primary Keyword"], str) and bool(positivePrimaryKeywordRegex.match(row["Position"]))
+    # Join potentially multiple phrase to form a single phrase
+    if isinstance(positive_positions, str):
+        positive_position = positive_positions
+    else:
+        positive_position = "|".join(positive_positions)
 
+    if isinstance(positive_keywords, str):
+        positive_keyword = positive_keywords
+    else:
+        positive_keyword = "|".join(positive_keywords)
+
+
+    if isinstance(negative_positions, str):
+        negative_position = negative_positions
+    else:
+        negative_position = "|".join(negative_positions)
+
+    if isinstance(negative_keywords, str):
+        negative_keyword = negative_keywords
+    else:
+        negative_keyword = "|".join(negative_keywords)
+
+    # Escape forward slash
+    # positive_position = positive_position.replace("/", "\/")
+    # positive_keyword = positive_keyword.replace("/", "\/")
+    # negative_position = negative_position.replace("/", "\/")
+    # negative_keyword = negative_keyword.replace("/", "\/")
+
+    if verbose:
+        print(f"Positive position = {positive_position}")
+        print(f"Positive keyword = {positive_keyword}")
+        print(f"Negative position = {negative_position}")
+        print(f"Negative keyword = {negative_keyword}")
+
+    # Positive match
+    positivePositionRegex = re.compile(f'.*({positive_position}).*', re.IGNORECASE)
+    positivePrimaryKeywordRegex = re.compile(f'({positive_keyword})', re.IGNORECASE)
+
+    position = row["Position"]
+    primaryKeyword = row["Primary Keyword"]
+
+    isPositivePositionMatch: bool = isinstance(position, str) and bool(positivePositionRegex.match(position))
+    isPositivePrimaryKeywordMatch: bool = isinstance(primaryKeyword, str) and bool(positivePrimaryKeywordRegex.match(primaryKeyword))
     isPositiveMatch: bool = isPositivePositionMatch and isPositivePrimaryKeywordMatch
 
     # Negative match
-    negativePositionRegex = re.compile(f'.*{negative_position}.*', re.IGNORECASE)
-    isNegativePositionMatch: bool = isinstance(row["Position"], str) and bool(negativePositionRegex.match(row["Position"]))
-    negativePrimaryKeywordRegex = re.compile(f'{negative_keyword}', re.IGNORECASE)
-    isNegativePrimaryKeywordMatch: bool = isinstance(row["Primary Keyword"], str) and bool(negativePrimaryKeywordRegex.match(row["Position"]))
+    negativePositionRegex = re.compile(f'.*({negative_position}).*', re.IGNORECASE)
+    negativePrimaryKeywordRegex = re.compile(f'({negative_keyword})', re.IGNORECASE)
 
+    isNegativePositionMatch: bool = isinstance(position, str) and bool(negativePositionRegex.match(position))
+    isNegativePrimaryKeywordMatch: bool = isinstance(primaryKeyword, str) and bool(negativePrimaryKeywordRegex.match(primaryKeyword))
     isNegativeMatch: bool = isNegativePositionMatch and isNegativePrimaryKeywordMatch
 
     if isPositiveMatch:
@@ -45,13 +90,13 @@ def get_true_label(row, positive_position: str, positive_keyword: str, negative_
     else:
         return pd.NA
 
-def add_true_label_column(df: pd.DataFrame, positive_position: str, positive_keyword: str, negative_position: str, negative_keyword: str):
+def add_true_label_column(df: pd.DataFrame, positive_position: str, positive_keyword: str, negative_position: str, negative_keyword: str, verbose: bool = False):
     '''
     Adds a new column to the dataframe with the true label in place
     '''
     TRUE_LABEL_COLUMN_NAME = "True Label"
 
-    label = lambda resume : get_true_label(resume, positive_position, positive_keyword, negative_position, negative_keyword)
+    label = lambda resume : get_true_label(resume, positive_position, positive_keyword, negative_position, negative_keyword, verbose)
     df[TRUE_LABEL_COLUMN_NAME] = df.apply(label, axis = 1)
 
     return
