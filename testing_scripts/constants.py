@@ -23,7 +23,7 @@ NEGATIVE_KEYWORDS = {"Design"}
 Related to resume generation
 ==================================================
 '''
-MODEL_NAME = "Together"
+MODEL_NAME = "OpenAI"
 
 from typing import Callable
 ModelRequestCallable = Callable[[str], str]     # Takes in a prompt string, outputs a generated string
@@ -35,6 +35,9 @@ with open('llm_api_keys.yaml', 'r') as file:
 
 # Together callable
 from together import Together
+from openai import OpenAI
+
+openai_api_key = config['services']['openai']['api_key'] 
 together_api_key = config['services']['together']['api_key'] 
 
 def together_callable(prompt: str) -> str:
@@ -47,11 +50,20 @@ def together_callable(prompt: str) -> str:
     output = response.choices[0].message.content
     return output
 
+def chat_gpt_callable(prompt: str) -> str:
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages = [{"role": "user", "content": prompt}],
+        )
+    output = response.choices[0].message.content
+    return output
+
 # Dictionary that associates model names to callables
 MODEL_NAME_TO_CALLABLE = {
-    "Together" : together_callable
+    "Together": together_callable,
+    "OpenAI": chat_gpt_callable
 }
-
 
 '''
 ==================================================

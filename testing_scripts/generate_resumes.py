@@ -32,7 +32,7 @@ def tailor_resume(input_resume: str, job_description: str, model_name: str, verb
     if verbose:
         print(f"Generating a new tailored resume ({NUM_RESUMES_GENERATED} generated so far)...")
 
-    if model_name == "Together":
+    if model_name == "Together" or model_name=="OpenAI":
         # Design prompt
         prompt: str = f"Tailor my resume to this job description and do not make anything up. It is imperative that you provide only the content of the CV without any additional explanations, notes, or comments."
         prompt += f" This is the job description: {job_description}"
