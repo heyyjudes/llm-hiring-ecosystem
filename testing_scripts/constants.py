@@ -50,10 +50,19 @@ def together_callable(prompt: str) -> str:
     output = response.choices[0].message.content
     return output
 
-def chat_gpt_callable(prompt: str) -> str:
+def gpt4o_callable(prompt: str) -> str:
     client = OpenAI(api_key=openai_api_key)
     response = client.chat.completions.create(
-        model="gpt-4o",
+        # model="gpt-4o",
+        messages = [{"role": "user", "content": prompt}],
+        )
+    output = response.choices[0].message.content
+    return output
+
+def gpt4omini_callable(prompt: str) -> str:
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         messages = [{"role": "user", "content": prompt}],
         )
     output = response.choices[0].message.content
@@ -62,7 +71,8 @@ def chat_gpt_callable(prompt: str) -> str:
 # Dictionary that associates model names to callables
 MODEL_NAME_TO_CALLABLE = {
     "Together": together_callable,
-    "OpenAI": chat_gpt_callable
+    "OpenAI": gpt4o_callable,
+    "OpenAI Mini": gpt4omini_callable
 }
 
 '''
