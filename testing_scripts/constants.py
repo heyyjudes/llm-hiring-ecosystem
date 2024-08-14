@@ -23,7 +23,7 @@ NEGATIVE_KEYWORDS = {"Design"}
 Related to resume generation
 ==================================================
 '''
-MODEL_NAME = "OpenAI"
+MODEL_NAME = "GPT-4o-mini"
 
 from typing import Callable
 ModelRequestCallable = Callable[[str], str]     # Takes in a prompt string, outputs a generated string
@@ -72,7 +72,7 @@ def gpt4omini_callable(prompt: str) -> str:
 MODEL_NAME_TO_CALLABLE = {
     "Together": together_callable,
     "OpenAI": gpt4o_callable,
-    "OpenAI Mini": gpt4omini_callable
+    "GPT-4o-mini": gpt4omini_callable
 }
 
 '''
@@ -92,6 +92,7 @@ JOB_DESCRIPTION = BITS_ORCHESTRA_PM_JOB_DESCRIPTION
 
 # Given a model name and the job name, return a standard-format name for the CV type
 def tailored_CV_name(model_name: str, job_name: str) -> str:
-    return f"{model_name}-Improved {job_name} CV"
+    # return f"{model_name}-Improved {job_name} CV"
+    return f"{model_name}-Improved General PM CV"
 
 TAILORED_CV_NAME = tailored_CV_name(model_name = MODEL_NAME, job_name = JOB_NAME)
