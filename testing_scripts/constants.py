@@ -23,7 +23,8 @@ NEGATIVE_KEYWORDS = {"Design"}
 Related to resume generation
 ==================================================
 '''
-MODEL_NAME = "GPT-4o-mini"
+# MODEL_NAME = "GPT-4o-mini"
+MODEL_NAME = "Together"
 
 from typing import Callable
 ModelRequestCallable = Callable[[str], str]     # Takes in a prompt string, outputs a generated string
@@ -64,6 +65,17 @@ def gpt4omini_callable(prompt: str) -> str:
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages = [{"role": "user", "content": prompt}],
+        )
+    output = response.choices[0].message.content
+    return output
+
+# Allows multiple user messages
+from typing import List, Dict
+def gpt4omini_conversation(messages = List[Dict[str, str]]) -> str:
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages = messages
         )
     output = response.choices[0].message.content
     return output
