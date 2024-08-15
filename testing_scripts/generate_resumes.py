@@ -131,11 +131,20 @@ def create_modified_resumes(marked_df, model_name: str, job_name: str, job_descr
     
     return
 
+def clean_column_resume(generated_df, column_name:str):
+    modify = lambda resume : clean_output(input_resume = resume) 
+    new_column_name = "Cleaned "+column_name
+    marked_df = generated_df.copy()
+    #print(column_name)
+    marked_df.loc[marked_df["Marked for Experiments"], new_column_name] = marked_df.loc[marked_df["Marked for Experiments"], column_name].apply(modify)
+    return marked_df
+
 if __name__ == "__main__":
     from datetime import datetime
     startTime = datetime.now()
     MARKED_DATAFRAME_INPUT_FILENAME = "data/marked_df_100 PM vs 100 UI_1000 chars min.csv"
     marked_ui_df = pd.read_csv(MARKED_DATAFRAME_INPUT_FILENAME)
     create_modified_resumes(marked_df=marked_ui_df, job_name=constants.BITS_ORCHESTRA_PM_JOB_NAME, job_description=constants.BITS_ORCHESTRA_PM_JOB_DESCRIPTION)
+    output_df = clean_column_resume(marked_ui_df, marked_ui_df.columns[-1])
     marked_ui_df.to_csv("data/chatgpt_generated_df_100 PM vs 100 UI_1000 chars min.csv")
     print("Time to run:", datetime.now() - startTime)
