@@ -26,9 +26,6 @@ Related to resume generation
 # MODEL_NAME = "GPT-4o-mini"
 MODEL_NAME = "Together"
 
-from typing import Callable
-ModelRequestCallable = Callable[[str], str]     # Takes in a prompt string, outputs a generated string
-
 import yaml
 with open('llm_api_keys.yaml', 'r') as file:
     config = yaml.safe_load(file)
@@ -40,6 +37,12 @@ from openai import OpenAI
 
 openai_api_key = config['services']['openai']['api_key'] 
 together_api_key = config['services']['together']['api_key'] 
+
+
+# CALLABLES: takes in a single prompt, returns a single output
+from typing import Callable
+Prompt = str
+ModelRequestCallable = Callable[[Prompt], str]
 
 def together_callable(prompt: str) -> str:
     client = Together(api_key=together_api_key) 
@@ -69,12 +72,23 @@ def gpt4omini_callable(prompt: str) -> str:
     output = response.choices[0].message.content
     return output
 
-# Allows multiple user messages
+MODEL_NAME_TO_CALLABLE: Dict[str, ModelRequestCallable] = {
+    "Together": together_callable,
+    "GPT-4o": gpt4o_callable,
+    "GPT-4o-mini": gpt4omini_callable
+}
+
+# CONVERSATIONS: takes in a series of prompts, returns a single output
+Role = str
+Content = str
+Message = Dict[Role, Content]
+ModelRequestConversation = Callable[[List[Message]], str]
+
 from typing import List, Dict
 def gpt4omini_conversation(messages: List[Dict[str, str]]) -> str:
     client = OpenAI(api_key=openai_api_key)
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model = "gpt-4o-mini",
         messages = messages
     )
     output = response.choices[0].message.content
@@ -83,17 +97,16 @@ def gpt4omini_conversation(messages: List[Dict[str, str]]) -> str:
 def gpt4o_conversation(messages: List[Dict[str, str]]) -> str:
     client = OpenAI(api_key=openai_api_key)
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model = "gpt-4o",
         messages = messages
     )
     output = response.choices[0].message.content
     return output
 
-# Dictionary that associates model names to callables
-MODEL_NAME_TO_CALLABLE = {
-    "Together": together_callable,
-    "OpenAI": gpt4o_callable,
-    "GPT-4o-mini": gpt4omini_callable
+# Dictionary that associates model names to conversation
+MODEL_NAME_TO_CONVERSATION: Dict[str, ModelRequestConversation] = {
+    "GPT-4o-mini Conversation": gpt4omini_conversation,
+    "GPT-4o Conversation": gpt4o_conversation
 }
 
 '''
@@ -113,7 +126,7 @@ JOB_DESCRIPTION = BITS_ORCHESTRA_PM_JOB_DESCRIPTION
 
 # Given a model name and the job name, return a standard-format name for the CV type
 def tailored_CV_name(model_name: str, job_name: str) -> str:
-    # return f"{model_name}-Improved {job_name} CV"
-    return f"{model_name}-Improved General PM CV"
+    return f"{model_name}-Improved {job_name} CV"
+    # return f"{model_name}-Improved General PM CV"
 
 TAILORED_CV_NAME = tailored_CV_name(model_name = MODEL_NAME, job_name = JOB_NAME)
