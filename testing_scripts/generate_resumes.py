@@ -32,11 +32,14 @@ def tailor_resume(input_resume: str, job_description: str, model_name: str, verb
     if verbose:
         print(f"Generating a new tailored resume ({NUM_RESUMES_GENERATED} generated so far)...")
 
-    if model_name == "Together" or model_name=="OpenAI":
+    if model_name == "Together" or model_name == "OpenAI" or model_name == "GPT-4o-mini":
         # Design prompt
-        prompt: str = f"Tailor my resume to this job description and do not make anything up. It is imperative that you provide only the content of the CV without any additional explanations, notes, or comments."
-        prompt += f" This is the job description: {job_description}"
-        prompt += f" This is my resume: {input_resume}"
+        # prompt: str = f"Tailor my resume to this job description and do not make anything up. It is imperative that you provide only the content of the CV without any additional explanations, notes, or comments."
+        # prompt += f" This is the job description: {job_description}"
+        # prompt += f" This is my resume: {input_resume}"
+
+        prompt: str = f"Improve the following resume for a project manager job. It is imperative that you do not make any information or qualifications up and that you provide only the content of the CV without any additional explanations, notes, or comments.\n"
+        prompt += f"ORIGINAL RESUME: {input_resume}"
 
     else:
         raise Exception("This should never be reached: make sure the if statements only contain supported models")
