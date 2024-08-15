@@ -133,6 +133,9 @@ def create_modified_resumes(marked_df, model_name: str, job_name: str, job_descr
     return
 
 def clean_output(input_resume: str)->str:
+    '''
+    Removes [bracketed placeholders], asterisks, newlines, and pound symbols
+    '''
     # quotient_stack = 0
     # brackets = ['[', ']']
     # output_resume = ""
