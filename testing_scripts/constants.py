@@ -58,12 +58,21 @@ def gpt4o_callable(prompt: str) -> str:
         )
     output = response.choices[0].message.content
     return output
-
+from typing import List, Dict
 def gpt4omini_callable(prompt: str) -> str:
     client = OpenAI(api_key=openai_api_key)
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages = [{"role": "user", "content": prompt}],
+        )
+    output = response.choices[0].message.content
+    return output
+
+def gpt4o_conversation(messages = List[Dict[str, str]]) -> str:
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages = messages
         )
     output = response.choices[0].message.content
     return output
