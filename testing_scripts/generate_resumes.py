@@ -131,6 +131,31 @@ def create_modified_resumes(marked_df, model_name: str, job_name: str, job_descr
     
     return
 
+def clean_output(input_resume: str)->str:
+    quotient_stack = 0
+    brackets = ['[', ']']
+    output_resume = ""
+    i=0
+    while i < len(input_resume):
+        elem = input_resume[i]
+        #print(i)
+        if quotient_stack == 0:
+            if elem not in brackets:
+                output_resume+=elem
+            elif elem == brackets[0]:
+                quotient_stack +=1
+                continue
+
+        elif quotient_stack ==1:
+            if elem == brackets[1]:
+                quotient_stack-=1
+                continue
+        else:
+            raise Exception("You should never have >1 bracket in queue.")
+        i+=1
+    
+    return output_resume.replace("\n", '').replace("*", '').replace("#", "")
+
 def clean_column_resume(generated_df, column_name:str):
     modify = lambda resume : clean_output(input_resume = resume) 
     new_column_name = "Cleaned "+column_name
