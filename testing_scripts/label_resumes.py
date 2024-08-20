@@ -78,7 +78,7 @@ def add_true_label_column(df: pd.DataFrame, positive_position: str, positive_key
     '''
     TRUE_LABEL_COLUMN_NAME = "True Label"
 
-    label = lambda resume : get_true_label(resume, positive_position, positive_keyword, negative_position, negative_keyword, verbose)
+    label = lambda row : get_true_label(row, positive_position, positive_keyword, negative_position, negative_keyword, verbose)
     df[TRUE_LABEL_COLUMN_NAME] = df.apply(label, axis = 1)
 
     return
