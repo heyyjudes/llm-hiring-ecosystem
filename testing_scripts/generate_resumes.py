@@ -25,23 +25,38 @@ def get_prompt_messages(original_cv: str, job_description: str, job_name: str) -
     '''
     This function outputs the desired prompt
     ''' 
-    message1A = f"I'm applying for a project manager role. This is the job description: {job_description}.\nPlease wait for further instructions."
-    message1B = f"Got it! I'll wait for your next instructions. Just let me know how you'd like to proceed or if you need help with anything specific regarding your application."
-    message2A = f''' Can you revise my resume for this job? I will be disqualified if I 
-    lie about my qualifications, so it is imperative that the new resume accurately 
-    represents my actual responsibilities and experiences from my original resume. 
-    Also, ensure that the output accurately represents my actual responsibilities and experiences. 
-    Don't add things not aren't applicable. Also, please do not include any additional notes or explanation: 
-    I just want the text of the new resume. This is my resume: {original_cv}'''
-    #message3A = 'Can you remove the information that is false, or incomplete?'
-    #print(message2A)
+    # BOGO: does not use job description now
+
+    # message1A = f"I'm applying for a project manager role. This is the job description: {job_description}.\nPlease wait for further instructions."
+    # message1B = f"Got it! I'll wait for your next instructions. Just let me know how you'd like to proceed or if you need help with anything specific regarding your application."
+    # message2A = f''' Can you revise my resume for this job? I will be disqualified if I 
+    # lie about my qualifications, so it is imperative that the new resume accurately 
+    # represents my actual responsibilities and experiences from my original resume. 
+    # Also, ensure that the output accurately represents my actual responsibilities and experiences. 
+    # Don't add things not aren't applicable. Also, please do not include any additional notes or explanation: 
+    # I just want the text of the new resume. This is my resume: {original_cv}'''
+    # #message3A = 'Can you remove the information that is false, or incomplete?'
+    # #print(message2A)
+    # messages = [
+    #     {"role": "user", "content": message1A},
+    #     {"role": "assistant", "content": message1B},
+    #     {"role": "user", "content": message2A},
+    #     # {"role": "user", "content": message3A}
+    # ]
+
+    message1A =  f"I'm applying for a project manager job. Can you revise my resume for this project manager job?"
+    message1A += f" I will be disqualified if I lie about my qualifications, so it is imperative that the new resume accurately represents my actual responsibilities and experiences from my original resume."
+    message1A += f" Also, please do not include any additional notes or explanation: I just want the text of the new resume."
+    message1A += f" Again, ensure that the output accurately represents only my actual responsibilities and experiences."
+    message1A += f" This is my resume: {original_cv}"
+
     messages = [
-        {"role": "user", "content": message1A},
-        {"role": "assistant", "content": message1B},
-        {"role": "user", "content": message2A},
+        {"role": "user", "content": message1A}
+        #, {"role": "assistant", "content": message1B},
+        # {"role": "user", "content": message2A},
         # {"role": "user", "content": message3A}
     ]
-    # print("generating..", flush=True)     # moved to tailor resume
+
     return messages
 
 def tailor_resume(input_resume: str, job_description: str, job_name: str, model_name: str, verbose: bool = False) -> str:
