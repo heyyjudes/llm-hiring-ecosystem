@@ -8,7 +8,7 @@ from testing_scripts import generate_resumes
 from testing_scripts import score_resumes
 
 #Generate input data with running script - label_resumes.py found in folder "testing_scripts."
-input_data = pd.read_csv("data/connie_3000_testing_data.csv")
+input_data = pd.read_csv("data/_3000_testing_data.csv")
 
 #Name of Folder to store data.
 saved_folder = "data/10_test_data/"
@@ -38,13 +38,13 @@ while end < end_script:
    
     #Generate & clean Twice modified resumes.
     generate_resumes.create_modified_resumes(saved_data, job_name = constants.JOB_NAME, job_description = constants.JOB_DESCRIPTION, model_name = input_model, verbose = True, original_column_name=input_model+'-Improved CV')
-    saved_data = generate_resumes.clean_column_resume(saved_data, input_model+'-Improved CV')
+    saved_data = generate_resumes.clean_column_resume(saved_data, 'Twice '+input_model+'-Improved CV')
 
     #Score original resumes, once modified resumes, and twice modified resumes.
     score_resumes.append_scores(saved_data, input_job_name, input_job_description, 'CV', False)
     score_resumes.append_scores(saved_data, input_job_name, input_job_description, 'Cleaned Together Conversation-Improved CV', False)
-
-    saved_data.to_csv(saved_folder+"connie_generated_resumes_data+{start}_to_{end}.csv")
+    score_resumes.append_scores(saved_data, input_job_name, input_job_description, 'Cleaned Twice Together Conversation-Improved CV', False)
+    saved_data.to_csv(saved_folder+"_generated_resumes_data+{start}_to_{end}.csv")
    
     #Index to next batch
     start=end
