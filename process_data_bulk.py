@@ -43,7 +43,6 @@ while end < end_script:
     #Score original resumes, once modified resumes, and twice modified resumes.
     score_resumes.append_scores(saved_data, input_job_name, input_job_description, 'CV', False)
     score_resumes.append_scores(saved_data, input_job_name, input_job_description, 'Cleaned Together Conversation-Improved CV', False)
-    score_resumes.append_scores(saved_data, input_job_name, input_job_description, 'Cleaned Together Conversation-Improved CV', False)
 
     saved_data.to_csv(saved_folder+"connie_generated_resumes_data+{start}_to_{end}.csv")
    
