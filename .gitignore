@@ -6,4 +6,5 @@ llm_api_keys.yaml
 cc.en.300.bin
 test-notebook.ipynb
 /testing_scripts/__pycache__
-*.out
+*.outi
+.*
