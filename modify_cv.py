@@ -1,5 +1,14 @@
 """
 This module provides functions to improve resumes/CVs using various LLM APIs.
+
+Running modify_cv takes in the following inputs and outputs the modified CVs in a .csv file. Optional inputs also have default values in the code:
+1. Input CVs (Filepath(s), Required)
+2. Output Directory (Filepath, Required)
+3. Prompt Type (String, Optional) - choice from “General Conversation” (Refer to Anti-Hallucination Prompt in Manuscript), “General Conversation with Job Description” (Modified First Option to take in the job description), and “Custom-Prompt” (User will input prompt).
+4. Prompt Job Description (String, Optional) - User inputted job description for the second and third prompt types.
+5. Custom Prompt (String, Optional) - User-inputted prompt for the last prompt type.
+6. LLM Provider (String - 1 of OpenAI, Together, Anthropic., Required)
+7. API-Key (Filepath, Required - path to api_keys.yaml file).
 """
 import time
 import argparse

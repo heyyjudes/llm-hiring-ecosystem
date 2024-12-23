@@ -1,3 +1,14 @@
+'''
+This module provides functions to score resumes/CVs against inputted job descriptions.
+
+Running score_cv takes the following three inputs - and outputs the scores of the inputted CVs in .csv form:
+1. Input CVs (Filepath(s), Required)
+2. Output Directory (Filepath, Required)
+3. Job Description (String, Optional) - defaults to "Scalable" Job Description: see Judy's slack messages.
+4. Job Name (String, Optional) - defaults to "Scalable" Job Description: see Judy's slack messages.
+
+'''
+
 import pandas as pd
 import argparse
 import old_constants
