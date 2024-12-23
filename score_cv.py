@@ -61,7 +61,7 @@ def return_scores(cv_s_dataframe: pd.DataFrame, job_name: str, job_description: 
     scores_df = pd.DataFrame(index=cv_s_dataframe.index)    
     scores_df[score_column_name] = pd.NA
 
-    # Score resumes on only the entries marked for experiments
+    # Score resumes.
     score = lambda resume : get_score(input_resume = resume, job_description = job_description, verbose = verbose)
     scores_df[score_column_name] = cv_s_dataframe[cv_column_name].apply(score)
     return scores_df[[score_column_name]]
@@ -117,4 +117,6 @@ if __name__ == "__main__":
             output_scores.to_csv(str(args.outputdir)+"/"+new_file_name)
         else:
             print("No scores outputted. Refer to previous error logs.")
-            #python3 score_cv.py test_folder/Modified_openai_gpt-4_Custom_test_cvs.csv test_folder 
+
+#Example Input
+#python3 score_cv.py test_folder/Modified_openai_gpt-4_Custom_test_cvs.csv test_folder 

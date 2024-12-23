@@ -29,6 +29,8 @@ openai_individual_batch_threshold=5
 class AnthropicClient:
     """Anthropic-specific implementation"""
     def __init__(self, input_api_key:str, model: str, prompt_job_description: str, prompt_type: str, custom_prompt: str):
+        #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
+
         self.client = Anthropic(api_key=input_api_key)
         self.model = model if model else "claude-3-sonnet-20240229"
         self.prompt_job_description = prompt_job_description if prompt_job_description else ''
@@ -36,7 +38,9 @@ class AnthropicClient:
         self.custom_prompt = custom_prompt if custom_prompt else ''
         return 
 
-    def _client_api_call_function_request_input_cv(self, input_cv:str, id: int)->Request:
+    def __client_api_call_function_request_input_cv(self, input_cv:str, id: int)->Request:
+        #Private Method: from the inputs of an input-cv, formats it into request that can be passed into the OpenAI API.
+
         messages = format_messages.generate_messages_per_resume(prompt_type=self.prompt_type, input_cv = input_cv, job_description=self.prompt_job_description, custom_prompt=self.custom_prompt)
         return_request = Request(
             custom_id=str(id),
@@ -49,18 +53,24 @@ class AnthropicClient:
         return return_request
 
     def generate_group_of_cv_s(self, cv_s_dataframe: pd.DataFrame) -> List[str]:
+        #Public Method - generates modified CVs from dataframe of inputted CVs.
+
         if len(cv_s_dataframe.columns)>1:
-            raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
+            raise Exception("More than one column of resumes inputted. Please reformat input to only contain one column")
         
         to_be_modified_col = cv_s_dataframe.columns[-1]
         modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
 
         original_cv_s = list(cv_s_dataframe[to_be_modified_col])
-        cv_batch_requests = [self._client_api_call_function_request_input_cv(input_cv=original_cv_s[i], id=i) for i in range(len(original_cv_s))]
 
+        #Formats all input CVs in a list of Request objects.
+        cv_batch_requests = [self.__client_api_call_function_request_input_cv(input_cv=original_cv_s[i], id=i) for i in range(len(original_cv_s))]
+
+        #Creates a Batch object from these CV Requests. 
         cv_batch_requests_output = self.client.beta.messages.batches.create(requests=cv_batch_requests)
         batch_id = cv_batch_requests_output.id
 
+        #Send Batch Object to LLM API for generation.
         while True:
             message_batch =self.client.beta.messages.batches.retrieve(batch_id)
             if message_batch.processing_status =='ended':
@@ -68,20 +78,26 @@ class AnthropicClient:
             print(f"Batch {message_batch.id} is still processing...")
             time.sleep(time_sleep_anthropic)
 
+        #Messages Batch Processing is done.
         output_resumes = []
-        #Messages Batch Processing is done, ended.
+
+        #Filter results by succeeded (if so, append to results), otherwise, add a placeholder of not_succeeded.
         for result in self.client.beta.messages.batches.results(message_batch.id):
             if result.result.type == 'succeeded':
                 output_resumes.append(result.result.message.content[0].text)
             else:
                 print(f"Batch of id({result.result.id}) has:"+str(result.result.type))
                 output_resumes.append("not_succeeded")
+
+        #Save outputted results to a dataframe.
         cv_s_dataframe[modified_col_name] = output_resumes
         return cv_s_dataframe[[modified_col_name]]
 
 class OpenAIClient:
     """OpenAI-specific implementation"""
     def __init__(self, input_api_key: str, model: str, prompt_job_description: str, prompt_type: str, custom_prompt: str):
+        #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
+
         self.client = OpenAI(api_key=input_api_key)
         self.model = model if model else 'gpt-4'
         self.prompt_job_description = prompt_job_description if prompt_job_description else ''
@@ -97,7 +113,8 @@ class OpenAIClient:
         self.num_generated = 0
         return 
 
-    def _client_api_call_function(self, messages)->str:
+    def __client_api_call_function(self, messages)->str:
+        #Private Method: from the inputs of an message, formats it into request that can be passed into the OpenAI API.
         response = self.client.chat.completions.create(
             model=self.model,
             messages = messages
@@ -105,8 +122,8 @@ class OpenAIClient:
         output = response.choices[0].message.content
         return output
     
-    def _create_batch_file_input(self, cv_s_dataframe: pd.DataFrame, to_be_modified_col: str = 'CV'):
-        #Currently, OpenAI only supports inputs of json-L files.
+    def __create_batch_file_input(self, cv_s_dataframe: pd.DataFrame, to_be_modified_col: str = 'CV'):
+        #Private Method: from the inputs of an input-cv, first combines the CVs with prompt data to generate LLM API messages, then formats it into json-L file that can be passed as inputs into the OpenAI API.
         original_cv_s = list(cv_s_dataframe[to_be_modified_col])
         batch_inputs = []
 
@@ -122,8 +139,10 @@ class OpenAIClient:
                 f.write(json.dumps(item) + "\n")
         return formatted_inputs_file_name 
     
-    def _send_group_of_cv_s_batch(self, cv_s_dataframe: pd.DataFrame, to_be_modified_col: str = 'CV'):
-        batch_input_file_name = self._create_batch_file_input(cv_s_dataframe=cv_s_dataframe, to_be_modified_col=to_be_modified_col)
+    def __send_group_of_cv_s_batch(self, cv_s_dataframe: pd.DataFrame, to_be_modified_col: str = 'CV'):
+        #Private Method: creates input jsonL file from input cvs, and creates a corresponding batch object.
+
+        batch_input_file_name = self.__create_batch_file_input(cv_s_dataframe=cv_s_dataframe, to_be_modified_col=to_be_modified_col)
         
         batch_input_file = self.client.files.create(file=open(batch_input_file_name, "rb"),purpose="batch")
         batch_input_file_id = batch_input_file.id
@@ -142,7 +161,9 @@ class OpenAIClient:
         self.batch_id = batch_object.id
         return batch_object
     
-    def _status_ended(self):
+    def __status_ended(self):
+        #Private Method to check if sent batch has ended. 
+
         if self.batch_id:
             if self.client.batches.retrieve(self.batch_id).status not in ['in_progress', 'validating', 'cancelling', 'finalizing']:
                 print(self.client.batches.retrieve(self.batch_id).status)
@@ -153,24 +174,27 @@ class OpenAIClient:
             raise Exception("Empty batch id.")
             return
 
-    def _cancel_batch_of_cvs(self):
+    def __cancel_batch_of_cvs(self):
+        #Private Method to cancel batch if needed. Not ever used in this module.
         self.batches.cancel(self.batch_id)
         self.batch_id = None
         return 
         
-    def _generate_group_of_cv_s_batch(self, cv_s_dataframe: pd.DataFrame):
+    def __generate_group_of_cv_s_batch(self, cv_s_dataframe: pd.DataFrame):
+        #Private Method - generates modified CVs from dataframe of inputted CVs with BATCH processing.
+
         if len(cv_s_dataframe.columns)>1:
             raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
         
         to_be_modified_col = cv_s_dataframe.columns[-1]
 
-        self._send_group_of_cv_s_batch(cv_s_dataframe=cv_s_dataframe, to_be_modified_col=to_be_modified_col)
+        self.__send_group_of_cv_s_batch(cv_s_dataframe=cv_s_dataframe, to_be_modified_col=to_be_modified_col)
 
         if self.batch_id is None:
             raise Exception("There is no batch id - either this job has been previously cancelled or something is wrong.") 
         
         while True:
-            if self._status_ended():
+            if self.__status_ended():
                 break
             time.sleep(time_sleep_openai)
 
@@ -184,8 +208,8 @@ class OpenAIClient:
             output_file_response = self.client.files.content(output_id)
 
             json_data = output_file_response.content.decode('utf-8')
-            #print(file_response.text)
 
+            #Filter output results by if succeeded (if so, append to results), otherwise, keep the placeholder of not_succeeded.
             output_resumes = ['not_successfully_modified' for i in range(len(cv_s_dataframe))]
             # Open the specified file in write mode
             for line in json_data.splitlines():
@@ -197,10 +221,10 @@ class OpenAIClient:
                 custom_id = json_record.get("custom_id")
                 custom_id_no = custom_id.split("-")[-1]
                 
-                 # Navigate to the 'choices' key within the 'response' -> 'body'
+                # Navigate to the 'choices' key within the 'response' -> 'body'
                 choices = json_record.get("response", {}).get("body", {}).get("choices", [])
                 
-                    # Loop through the choices to find messages with the 'assistant' role
+                # Loop through the choices to find messages with the 'assistant' role
                 for choice in choices:
                     message = choice.get("message", {})
                     if message.get("role") == "assistant":
@@ -209,20 +233,20 @@ class OpenAIClient:
                                          
                 output_resumes[int(custom_id_no)] = current_output
 
+            #Save outputted results to a dataframe of the modified resumes.
             modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
             cv_s_dataframe[modified_col_name] = output_resumes
             return cv_s_dataframe[[modified_col_name]]
 
-    #The following functions do not use the new Batch API functionality. 
-    def _generate_individal_cv(self, input_cv: str) -> str:
-        # TogetherAI-specific implementation
+    #The following functions achieve the same purpose of modifying resumes, but DO NOT use the new Batch API functionality. 
+    def __generate_individal_cv(self, input_cv: str) -> str:
         messages = format_messages.generate_messages_per_resume(prompt_type = self.prompt_type, input_cv = input_cv, job_description=self.prompt_job_description, custom_prompt = self.custom_prompt)
-        output: str = self._client_api_call_function(messages)
+        output: str = self.__client_api_call_function(messages)
         self.num_generated+=1
         print(f"Generated {self.num_generated} resume.")
         return output
 
-    def _generate_group_of_cv_s_from_individual_calls(self, cv_s_dataframe: pd.DataFrame):
+    def __generate_group_of_cv_s_from_individual_calls(self, cv_s_dataframe: pd.DataFrame):
         #Generate modified column name
         if len(cv_s_dataframe.columns)>1:
             raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
@@ -231,20 +255,23 @@ class OpenAIClient:
         modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
 
         #Generate resumes together.
-        generate = lambda cv : self._generate_individal_cv(input_cv = cv)
+        generate = lambda cv : self.__generate_individal_cv(input_cv = cv)
         cv_s_dataframe[modified_col_name]= cv_s_dataframe[to_be_modified_col].apply(generate)
         return cv_s_dataframe[[modified_col_name]]
     
     def generate_group_of_cv_s(self, cv_s_dataframe: pd.DataFrame):
+        #Wrappper function that generates group of cv-s with either individual requests to LLM API (if size small enough) or batch requests to LLM API.
         if len(cv_s_dataframe)<=openai_individual_batch_threshold:
-            return self._generate_group_of_cv_s_from_individual_calls(cv_s_dataframe)
+            return self.__generate_group_of_cv_s_from_individual_calls(cv_s_dataframe)
         else:
-            return self._generate_group_of_cv_s_batch(cv_s_dataframe)
+            return self.__generate_group_of_cv_s_batch(cv_s_dataframe)
 
 
 class TogetherAIClient:
     """TogetherAI-specific implementation"""
     def __init__(self, input_api_key:str, model: str, prompt_job_description: str, prompt_type: str, custom_prompt: str):
+        #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
+
         self.client = Together(api_key=input_api_key)
         self.model = model if model else "mistralai/Mixtral-8x7B-Instruct-v0.1"
         self.prompt_job_description = prompt_job_description if prompt_job_description else ''
@@ -253,7 +280,8 @@ class TogetherAIClient:
         self.num_generated = 0
         return 
     
-    def _client_api_call_function(self, messages)->str:
+    def __client_api_call_function(self, messages)->str:
+        #Prepares chat completion request from input messages.
         response = self.client.chat.completions.create(
             model=self.model,
             messages = messages
@@ -261,17 +289,16 @@ class TogetherAIClient:
         output = response.choices[0].message.content
         return output
 
-    def _generate_cv(self, input_cv: str) -> str:
-        # TogetherAI-specific implementation
+    def __generate_one_cv(self, input_cv: str) -> str:
+        #Modifies a SINGULAR input cv from LLM API request. 
         messages = format_messages.generate_messages_per_resume(prompt_type = self.prompt_type, input_cv = input_cv, job_description=self.prompt_job_description, custom_prompt = self.custom_prompt)
-        output: str = self._client_api_call_function(messages)
+        output: str = self.__client_api_call_function(messages)
         self.num_generated+=1
         print(f"Generated {self.num_generated} resume.")
         return output
 
     def generate_group_of_cv_s(self, cv_s_dataframe: pd.DataFrame):
-        # TogetherAI-specific batch implementation
-        #Generate modified column name
+        # Iteratively class the above __generate_one_cv function on resumes in our dataframe.
         if len(cv_s_dataframe.columns)>1:
             print(cv_s_dataframe.columns)
             raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
@@ -280,9 +307,11 @@ class TogetherAIClient:
 
         modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
 
-        #Generate resumes together.
-        generate = lambda cv : self._generate_cv(input_cv = cv)
+        #Iterative calls with Lambda Function
+        generate = lambda cv : self.__generate_one_cv(input_cv = cv)
         cv_s_dataframe[modified_col_name]= cv_s_dataframe[to_be_modified_col].apply(generate)
+
+        #Saves output results.
         return cv_s_dataframe[[modified_col_name]]
 
 
@@ -393,7 +422,7 @@ if __name__ == "__main__":
         if modified_resumes is not None:
             modified_resumes.to_csv(str(args.outputdir)+"/"+new_file_name)
         else:
-            print("No modified resumes outputted. Refer to previous error logs.")
+            print(f"No modified resumes outputted for this {resume_path}. Refer to previous error logs.")
 
-    #Example input
-   # python3 modify_cv.py test_csvs.csv test_folder --prompt-type "General Conversation w/o Job Description" --provider together --api-key llm_api_keys.yaml
+#Example Input
+#python3 modify_cv.py test_csvs.csv test_folder --prompt-type "General Conversation w/o Job Description" --provider together --api-key llm_api_keys.yaml
