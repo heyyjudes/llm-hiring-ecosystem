@@ -4,18 +4,26 @@ This module provides functions to improve resumes/CVs using various LLM APIs.
 Running modify_cv takes in the following inputs and outputs the modified CVs in a .csv file. Optional inputs also have default values in the code:
 1. Input CVs (Filepath(s), Required)
 2. Output Directory (Filepath, Required)
-3. Prompt Type (String, Optional) - choice from “General Conversation” (Refer to Anti-Hallucination Prompt in Manuscript), “General Conversation with Job Description” (Modified First Option to take in the job description), and “Custom-Prompt” (User will input prompt).
-4. Prompt Job Description (String, Optional) - User inputted job description for the second and third prompt types.
-5. Custom Prompt (String, Optional) - User-inputted prompt for the last prompt type.
-6. LLM Provider (String - 1 of OpenAI, Together, Anthropic., Required)
-7. API-Key (Filepath, Required - path to api_keys.yaml file).
+3. Prompt Template (Filepath (.json or .txt), Required) - Prompt with placeholder for {original_cv} (optional placeholder for {job_description}).
+4. Job Description for Prompt (.txt, Optional) - User-inputted prompt for the last prompt type.
+5. LLM Provider (String - 1 of OpenAI, Together, Anthropic., Required)
+6. API-Key (Filepath, Required - path to api_keys.yaml file).
+7. Model (String, Optional) - name of model to use (besides default).
+
+It outputs a csv, timestamped, with one column corresponding to the modified resume/CV text. 
+
+Example Usage:
+python3 modify_cv.py test_cvs.csv test_folder --prompt-template test_template.txt --prompt-job-description scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
+
+Example Input Files can be found in sample_input_data.
 """
+#Change generate_resume_messages -> format files that this code can take as an input. 
+# or somehow format_file, prompt_content as input, and 
+# internal function here that combines format_file & prompt_content tgt as one. 
 import time
 import argparse
 import yaml
 import pandas as pd
-from abc import ABC, abstractmethod
-import format_messages 
 from typing import List
 from pathlib import Path
 from enum import Enum
@@ -24,6 +32,9 @@ import json
 from datetime import datetime
 from together import Together
 import os
+
+from langchain_core.prompts import PromptTemplate
+
 from openai import OpenAI
 from anthropic import Anthropic
 
@@ -35,22 +46,49 @@ time_sleep_openai=20
 MAX_TOKENS=1024
 openai_individual_batch_threshold=5
 
+#Set up Prompts Code
+def read_template(template_path):
+    template_path = str(template_path)
+    if template_path.endswith(".json"):
+        template_json = json.load(open(template_path, 'r'))
+        final_template = list(template_json.values())
+    else:
+        str_template = open(template_path, 'r').read()
+        final_template = PromptTemplate.from_template(template = str_template)
+    return final_template
+    
+def format_message_json(prompt_template:List, input_cv, job_desc:str = ''):
+    messages_formatted = [{'role':i['role'], 'content':i['content'].replace("{original_cv}", input_cv).replace("{job_description}", job_desc)} for i in prompt_template]
+    return messages_formatted
+
+def format_message_txt(prompt_template, input_cv, job_desc:str= ''):
+    messages_string = prompt_template.format(original_cv = input_cv, job_description=job_desc)
+    messages_formatted = [{"role": "user", "content": messages_string}]
+    return messages_formatted
+
 class AnthropicClient:
     """Anthropic-specific implementation"""
-    def __init__(self, input_api_key:str, model: str, prompt_job_description: str, prompt_type: str, custom_prompt: str):
-        #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
+    def __init__(self, input_api_key:str, model: str, prompt_template_path:str, prompt_template:str, prompt_job_desc_filename:str, prompt_job_description: str):
+       #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
 
         self.client = Anthropic(api_key=input_api_key)
         self.model = model if model else "claude-3-sonnet-20240229"
+        self.prompt_template_path = prompt_template_path
+        self.prompt_template = prompt_template
+        self.prompt_job_description_filename = prompt_job_desc_filename if prompt_job_desc_filename else ''
         self.prompt_job_description = prompt_job_description if prompt_job_description else ''
-        self.prompt_type = prompt_type if prompt_type else "General Conversation w/o Job Description"
-        self.custom_prompt = custom_prompt if custom_prompt else ''
+
         return 
+    
+    def format_messages(self, input_cv:str):
+        if self.prompt_template_path.endswith('.json'):
+            return format_message_json(self.prompt_template, input_cv, self.prompt_job_description)
+        return format_message_txt(prompt_template=self.prompt_template, input_cv=input_cv, job_desc=self.prompt_job_description)
+    
 
     def __client_api_call_function_request_input_cv(self, input_cv:str, id: int)->Request:
         #Private Method: from the inputs of an input-cv, formats it into request that can be passed into the OpenAI API.
-
-        messages = format_messages.generate_messages_per_resume(prompt_type=self.prompt_type, input_cv = input_cv, job_description=self.prompt_job_description, custom_prompt=self.custom_prompt)
+        messages = self.format_messages(input_cv = input_cv)
         return_request = Request(
             custom_id=str(id),
             params=MessageCreateParamsNonStreaming(
@@ -68,7 +106,7 @@ class AnthropicClient:
             raise Exception("More than one column of resumes inputted. Please reformat input to only contain one column")
         
         to_be_modified_col = cv_s_dataframe.columns[-1]
-        modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
+        modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}" 
 
         original_cv_s = list(cv_s_dataframe[to_be_modified_col])
 
@@ -95,7 +133,16 @@ class AnthropicClient:
             if result.result.type == 'succeeded':
                 output_resumes.append(result.result.message.content[0].text)
             else:
-                print(f"Batch of id({result.result.id}) has:"+str(result.result.type))
+                match result.result.type:
+                    case "errored":
+                        if result.result.error.type == "invalid_request":
+                            # Request body must be fixed before re-sending request
+                            print(f"Validation error {result.custom_id}")
+                        else:
+                            # Request can be retried directly
+                            print(f"Server error {result.custom_id}")
+                    case "expired":
+                        print(f"Request expired {result.custom_id}")
                 output_resumes.append("not_succeeded")
 
         #Save outputted results to a dataframe.
@@ -104,23 +151,31 @@ class AnthropicClient:
 
 class OpenAIClient:
     """OpenAI-specific implementation"""
-    def __init__(self, input_api_key: str, model: str, prompt_job_description: str, prompt_type: str, custom_prompt: str):
+    def __init__(self, input_api_key:str, model: str, prompt_template_path:str, prompt_template:str, prompt_job_desc_filename:str, prompt_job_description: str):
         #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
 
         self.client = OpenAI(api_key=input_api_key)
         self.model = model if model else 'gpt-4'
+        self.prompt_template_path = prompt_template_path
+        self.prompt_template = prompt_template
+        self.prompt_job_description_filename = prompt_job_desc_filename if prompt_job_desc_filename else ''
         self.prompt_job_description = prompt_job_description if prompt_job_description else ''
-        self.prompt_type = prompt_type if prompt_type else 'General Conversation w/o Job Description'
-        self.custom_prompt = custom_prompt if custom_prompt else ''
         self.open_ai_batch_id = None
 
         current_datetime = datetime.now()
         current_datetime_str = current_datetime.strftime('%Y_%m_%d_%H_%M_%S')
-        self.output_file_name = prompt_type+"-"+current_datetime_str+".jsonl"
+        self.output_file_name = f"{current_datetime_str}.jsonl"
 
         self.time_marker = current_datetime_str
         self.num_generated = 0
+        
         return 
+    
+    def format_messages(self, input_cv:str):
+        if self.prompt_template_path.endswith('.json'):
+            return format_message_json(self.prompt_template, input_cv, self.prompt_job_description)
+        return format_message_txt(prompt_template=self.prompt_template, input_cv=input_cv, job_desc=self.prompt_job_description)
+       
 
     def __client_api_call_function(self, messages)->str:
         #Private Method: from the inputs of an message, formats it into request that can be passed into the OpenAI API.
@@ -137,10 +192,10 @@ class OpenAIClient:
         batch_inputs = []
 
         for index, row in cv_s_dataframe.iterrows():
-            batch_inputs.append({"custom_id":"resume-request-"+str(index),
+            batch_inputs.append({"custom_id":f"resume-request-{str(index)}",
                                  'method':"POST",
                                  'url': "/v1/chat/completions",
-                                 'body':{'model':self.model, 'messages':format_messages.generate_messages_per_resume(prompt_type=self.prompt_type, input_cv = row[to_be_modified_col], job_description=self.prompt_job_description, custom_prompt=self.custom_prompt)}})
+                                 'body':{'model':self.model, 'messages':self.format_messages(input_cv = row[to_be_modified_col])}})
 
         formatted_inputs_file_name = "openai_formatted_inputs_"+self.time_marker+".jsonl"
         with open(formatted_inputs_file_name, "w") as f:
@@ -161,7 +216,7 @@ class OpenAIClient:
             endpoint="/v1/chat/completions",
             completion_window="24h",
             metadata={
-                "description": self.model+"_resume_generation_of_prompt_"+self.prompt_type+"_time_"+self.time_marker
+                "description": self.model+"_resume_generation"+"_time_"+self.time_marker
             }
         )
 
@@ -243,13 +298,15 @@ class OpenAIClient:
                 output_resumes[int(custom_id_no)] = current_output
 
             #Save outputted results to a dataframe of the modified resumes.
-            modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
+            to_be_modified_col = cv_s_dataframe.columns[-1]
+            modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}" 
+
             cv_s_dataframe[modified_col_name] = output_resumes
             return cv_s_dataframe[[modified_col_name]]
 
     #The following functions achieve the same purpose of modifying resumes, but DO NOT use the new Batch API functionality. 
     def __generate_individal_cv(self, input_cv: str) -> str:
-        messages = format_messages.generate_messages_per_resume(prompt_type = self.prompt_type, input_cv = input_cv, job_description=self.prompt_job_description, custom_prompt = self.custom_prompt)
+        messages = self.format_messages(input_cv = input_cv)
         output: str = self.__client_api_call_function(messages)
         self.num_generated+=1
         print(f"Generated {self.num_generated} resume.")
@@ -261,7 +318,7 @@ class OpenAIClient:
             raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
         
         to_be_modified_col = cv_s_dataframe.columns[-1]
-        modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
+        modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}" 
 
         #Generate resumes together.
         generate = lambda cv : self.__generate_individal_cv(input_cv = cv)
@@ -278,17 +335,23 @@ class OpenAIClient:
 
 class TogetherAIClient:
     """TogetherAI-specific implementation"""
-    def __init__(self, input_api_key:str, model: str, prompt_job_description: str, prompt_type: str, custom_prompt: str):
+    def __init__(self, input_api_key:str, model: str, prompt_template_path:str, prompt_template:str, prompt_job_desc_filename:str, prompt_job_description: str):
         #Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
-
         self.client = Together(api_key=input_api_key)
         self.model = model if model else "mistralai/Mixtral-8x7B-Instruct-v0.1"
+        self.prompt_template_path = prompt_template_path
+        self.prompt_template = prompt_template
+        self.prompt_job_description_filename= prompt_job_desc_filename if prompt_job_desc_filename else ''
         self.prompt_job_description = prompt_job_description if prompt_job_description else ''
-        self.prompt_type = prompt_type if prompt_type else "General Conversation w/o Job Description"
-        self.custom_prompt = custom_prompt if custom_prompt else ''
         self.num_generated = 0
+
         return 
     
+    def format_messages(self, input_cv:str):
+        if self.prompt_template_path.endswith('.json'):
+            return format_message_json(self.prompt_template, input_cv, self.prompt_job_description)
+        return format_message_txt(prompt_template=self.prompt_template, input_cv=input_cv, job_desc=self.prompt_job_description)
+        
     def __client_api_call_function(self, messages)->str:
         #Prepares chat completion request from input messages.
         response = self.client.chat.completions.create(
@@ -300,7 +363,7 @@ class TogetherAIClient:
 
     def __generate_one_cv(self, input_cv: str) -> str:
         #Modifies a SINGULAR input cv from LLM API request. 
-        messages = format_messages.generate_messages_per_resume(prompt_type = self.prompt_type, input_cv = input_cv, job_description=self.prompt_job_description, custom_prompt = self.custom_prompt)
+        messages = self.format_messages(input_cv)
         output: str = self.__client_api_call_function(messages)
         self.num_generated+=1
         print(f"Generated {self.num_generated} resume.")
@@ -313,8 +376,7 @@ class TogetherAIClient:
             raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
         
         to_be_modified_col = cv_s_dataframe.columns[-1]
-
-        modified_col_name = "Modified_" + self.model + " "+self.prompt_type+ "_of_" + to_be_modified_col
+        modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}" 
 
         #Iterative calls with Lambda Function
         generate = lambda cv : self.__generate_one_cv(input_cv = cv)
@@ -349,21 +411,14 @@ def parse_args() -> argparse.Namespace:
     prompt_details = parser.add_argument_group("Prompt Details")
 
     prompt_details.add_argument(
-        '--prompt-type',
-        type=str,
-        choices=['General Conversation w/o Job Description', 'General Conversation w/ Job Description', 'Custom'],
-        default = 'General Conversation w/o Job Description',
-        help = 'Prompt Type for Modifying Resumes'
-    )
-    prompt_details.add_argument(
         '--prompt-job-description',
-        type=str,
-        help='Job Description for prompt.'
+        type=Path,
+        help='Job Description File for prompt.'
     )
     prompt_details.add_argument(
-        '--custom-prompt',
-        type=str,
-        help='Custom Prompt (if type is selected).'
+        '--prompt-template',
+        type=Path,
+        help='Template file for input prompt.'
     )
 
     # Provider configuration
@@ -395,11 +450,12 @@ def parse_args() -> argparse.Namespace:
         if not resume_path.is_file():
             parser.error(f"Resume file not found: {resume_path}")
 
-    if args.prompt_type == 'Custom' and args.custom_prompt is None:
-        parser.error("Custom prompt type indiciated, but no custom prompt inputted.")
-    
-    if args.prompt_type == 'General Conversation w/ Job Description' and args.prompt_job_description is None:
-        parser.error("Prompt with job description indicated, but no job description inputted. Use --prompt-job-description to put the text in.")
+    if not args.prompt_template.is_file():
+        parser.error(f"Prompt Template not found: {args.prompt_template}")
+
+    if not str(args.prompt_template).endswith(('.json', '.txt')):
+        parser.error(f"Prompt Template: {args.prompt_template} does not end in json/txt.")
+
 
     #args: resumes provider and model
     args.outputdir.mkdir(parents=True, exist_ok=True)
@@ -411,27 +467,70 @@ if __name__ == "__main__":
 
     with open(str(args.api_key), 'r') as file:
         config = yaml.safe_load(file)
-
-    #(self, input_api_key: str, model: str = "claude-3-sonnet-20240229", prompt_job_description: str = '', prompt_type: str='', custom_prompt: str=''):
+    
     user_input_api_key = config['services'][args.provider]['api_key']
+ 
+    #Format parse-args to input into client initialization below. 
+    prompt_template_path = args.prompt_template
+    formatted_prompt_template = read_template(prompt_template_path)
 
+    prompt_job_description_name = args.prompt_job_description.name if args.prompt_job_description else None
+    prompt_job_description_str = open(args.prompt_job_description, 'r').read() if args.prompt_job_description else None
+
+
+    #Define Client
     if args.provider == 'together':
-        client = TogetherAIClient(input_api_key = user_input_api_key, model=args.model, prompt_type=args.prompt_type, prompt_job_description=args.prompt_job_description, custom_prompt=args.custom_prompt)
+        client = TogetherAIClient(input_api_key = user_input_api_key,
+                                  model=args.model, 
+                                  prompt_template=formatted_prompt_template,
+                                  prompt_template_path=str(prompt_template_path),
+                                  prompt_job_desc_filename=prompt_job_description_name,
+                                  prompt_job_description = prompt_job_description_str)
     elif args.provider == 'anthropic':
-        client = AnthropicClient(input_api_key = user_input_api_key, model=args.model, prompt_type=args.prompt_type, prompt_job_description=args.prompt_job_description, custom_prompt=args.custom_prompt)
+        client = AnthropicClient(input_api_key = user_input_api_key,
+                                  model=args.model, 
+                                  prompt_template=formatted_prompt_template,
+                                  prompt_template_path=str(prompt_template_path),
+                                  prompt_job_desc_filename=prompt_job_description_name,
+                                  prompt_job_description = prompt_job_description_str)
     elif args.provider == 'openai':
-        client = OpenAIClient(input_api_key = user_input_api_key, model=args.model, prompt_type=args.prompt_type, prompt_job_description=args.prompt_job_description, custom_prompt=args.custom_prompt)
+        client = OpenAIClient(input_api_key = user_input_api_key,
+                                  model=args.model, 
+                                  prompt_template=formatted_prompt_template,
+                                  prompt_template_path=str(prompt_template_path),
+                                  prompt_job_desc_filename=prompt_job_description_name,
+                                  prompt_job_description = prompt_job_description_str)
     else:
         raise ValueError("Provider client not found")
 
+    if str(prompt_template_path).endswith('.txt'):
+        prompt_template_path_name = str(prompt_template_path)[:-4]  # Remove .txt
+    else:
+        prompt_template_path_name = str(prompt_template_path)[:-5]
+    
     for resume_path in args.resumes:
+
+        #Make neccesary folders to store output csvs.
+        saved_dir_ppaths = [
+            f"{args.outputdir}/input_cvs_{str(resume_path)[:-4]}",
+            f"{args.outputdir}/input_cvs_{str(resume_path)[:-4]}/prompt_template_{prompt_template_path_name}",
+         ]
+        if args.prompt_job_description is not None:
+            saved_dir_ppaths.append(f"{args.outputdir}/input_cvs_{str(resume_path)[:-4]}/{args.provider}_{client.model}/prompt_template_{prompt_template_path_name}/job_desc_{args.prompt_job_description.name[:-4]}")
+       
+       
+        for path in saved_dir_ppaths:
+            if not os.path.isdir(path):
+                Path(path).mkdir(parents=True, exist_ok=True)
+
+        #Generate and save modified resumes.
         modified_resumes = client.generate_group_of_cv_s(cv_s_dataframe=pd.read_csv(str(resume_path), index_col=0))
-        new_file_name = "Modified_Model_Type_"+args.provider+"_"+client.model+"_Prompt_Type_"+client.prompt_type+"_Original_File_"+resume_path.name
-        new_file_name = new_file_name.replace("/", "_").replace(" ", "_")
+        timestamp = datetime.now()
+        timestamp_str = timestamp.strftime('%Y-%m-%d_%H-%M')
+
+        new_file_name = f"file_{timestamp_str}.csv"
         if modified_resumes is not None:
-            modified_resumes.to_csv(str(args.outputdir)+"/"+new_file_name)
+            modified_resumes.to_csv(f"{saved_dir_ppaths[-1]}/{new_file_name}")
         else:
             print(f"No modified resumes outputted for this {resume_path}. Refer to previous error logs.")
 
-#Example Input
-#python3 modify_cv.py test_csvs.csv test_folder --prompt-type "General Conversation w/o Job Description" --provider together --api-key llm_api_keys.yaml

@@ -1,0 +1,5 @@
+Can you improve my resume?
+I will be punished if I lie about my qualifications, so it is imperative that the new resume does not add any facts that are not in the original resume.
+Also, please do not include any additional notes or explanation: I just want the text of the new resume. Do not even write 'here is the resume', I just need the plain text.
+Again, ensure that the output accurately represents my actual responsibilities, experiences, and skills.
+This is my resume: {original_cv}. 
