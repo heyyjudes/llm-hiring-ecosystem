@@ -1,6 +1,7 @@
 from . import constants
 import pandas as pd
 import re
+import argparse
 # from typing import Iterable
 from collections.abc import Iterable   # import directly from collections for Python < 3.3
 
@@ -101,9 +102,31 @@ def add_true_label_column(df: pd.DataFrame, positive_position: str, positive_key
 
     return
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Improve resumes using various LLM providers",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(
+        "-num-resumes",
+        type=int,
+        help="Intended sample size of experiment."
+    )
+
+    parser.add_argument(
+        "-true-false-split",
+        type=float,
+        help="Percentage of true resumes (i.e. 0.3 or 0.5), default should be 0.5."
+    )
+
+    args = parser.parse_args()
+    
+    return args
 
 # Creates a true label column
 if __name__ == "__main__":
+    args = parse_args()
     print("Labeling 1/0 Labels for Data.")
     df = pd.read_parquet('data/resumes.parquet', engine='pyarrow')  # raw dataframe
     # Filter the dataframe minimum cv length
@@ -112,5 +135,15 @@ if __name__ == "__main__":
     labeled_df = filtered_df.copy()
     labeled_df["True Label"] = labeled_df.apply(get_true_label, axis=1)
     labeled_df = labeled_df[labeled_df["True Label"].notna()]    # Filter out rows whose label value is NA
+    labeled_df.to_csv("Filtered_Truth_label.csv")   
+    if args.num_resumes > len(labeled_df):
+        raise
+
+    cvs_formatted_for_experiments = pd.concat(
+        labeled_df[labeled_df['True Label']==1][0:int(args.num_resumes*args.true_false_split)],
+        labeled_df[labeled_df['True Label']==0][0:int(args.num_resumes - args.num_resumes*args.true_false_split)]
+        )
     
-    labeled_df.to_csv("data/Filtered_Truth_label.csv")   
+    cvs_formatted_for_experiments = cvs_formatted_for_experiments['CV', 'True Label']
+    cvs_formatted_for_experiments = cvs_formatted_for_experiments.reset_index(drop=True)
+    cvs_formatted_for_experiments.to_csv("Final_Experiment_Resumes.csv", index=True)
