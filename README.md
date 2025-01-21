@@ -59,7 +59,6 @@ To test modify_cv.py with our example files, run in the root directory of this f
 
 ```
 python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --prompt-template sample_input_data/example_prompts/test_template.txt --prompt-job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
-
 ```
 
 #### Inputs and Outputs for `score_cv`
