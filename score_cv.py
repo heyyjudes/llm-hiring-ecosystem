@@ -11,7 +11,6 @@ Running score_cv takes the following three inputs - and outputs the scores of th
 
 import pandas as pd
 import argparse
-import old_constants
 from typing import List, Dict, Union, Optional, Any
 from pathlib import Path
 from qdrant_client import QdrantClient
@@ -88,7 +87,7 @@ def parse_args() -> argparse.Namespace:
         "resumes",
         type=Path,
         nargs='+',
-        help="Path to one or more resume files to improve"
+        help="Path to one or more resume files to score"
     )
 
     parser.add_argument(
@@ -101,13 +100,13 @@ def parse_args() -> argparse.Namespace:
 
     scored_against_job_desc_details.add_argument(
         '--job-description',
-        type=str,
-        help='Job Description for prompt.'
+        type=Path,
+        help='Job Description to be scored against.'
     )
     scored_against_job_desc_details.add_argument(
         '--job-name',
         type=str,
-        help='Job Description for prompt.'
+        help='Job Name to be scored against.'
     )
     args = parser.parse_args()
     args.outputdir.mkdir(parents=True, exist_ok=True)
@@ -115,9 +114,10 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args=parse_args()
-
-    input_job_desc = args.job_description if args.job_description else c.scalable_pm_job_desc
+    
     input_job_name = args.args.job_name if args.job_name else c.scalable_pm_job_name
+    input_job_desc = open(args.job_description, 'r').read() if args.job_description else c.scalable_pm_job_desc
+
     
     for resume_path in args.resumes:
         output_scores = return_scores(cv_s_dataframe=pd.read_csv(str(resume_path), index_col=0), job_name=input_job_name, job_description=input_job_desc)

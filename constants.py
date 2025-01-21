@@ -1,5 +1,6 @@
-MAX_TOKENS=1024
+#Just some widely used variables in our modify_cv.py and score_cv.py scripts, though can be modified with user input: refer to README for more.
 
+MAX_TOKENS=1024
 scalable_pm_job_name = 'Scalable PM'
 scalable_pm_job_desc = '''Job Description
 This role is situated in a cross-functional team within a new product tribe. All teams in this tribe together are building a new greenfield technology platform, laying the foundation for an exciting set of future products and services. It’s a crucial element in Scalable’s long-term strategy.
@@ -27,7 +28,3 @@ Enjoy an office in a great location in the middle of Munich, Berlin, or choose t
 Flexible vacation policy and the opportunity to work from abroad
 Be productive with the latest hardware and tools
 Learn and grow by joining our in-house knowledge sharing sessions and spending your individual Education Budget'''
-
-#Have templates with separate files
-
-#Have prompts with different templates -> 

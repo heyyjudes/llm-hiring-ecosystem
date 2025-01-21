@@ -31,7 +31,7 @@ Running modify_cv takes in the following inputs and outputs the modified CVs in 
 3. **Prompt Template**  
    - **Type**: Filepath (`.json` or `.txt`)  
    - **Required**  
-   - **Details**: Prompt with a placeholder for `{original_cv}` (optional placeholder for `{job_description}`).
+   - **Details**: Prompt with a placeholder for `{original_cv}` (optional placeholder for `{job_description}`). We recommend using '.txt' files if you only need to interface with the LLM-API as a "user". Otherwise, check the example-json prompt template to interface with the LLM-API as an assistant (in addition to user).
 
 4. **Job Description for Prompt**  
    - **Type**: `.txt`  
@@ -55,10 +55,10 @@ Running modify_cv takes in the following inputs and outputs the modified CVs in 
 
 It outputs a csv, timestamped, with one column corresponding to the modified resume/CV text. 
 
-To test modify_cv.py with our example files, run in the root directory of this folder: 
+To test modify_cv.py with our example files and anti-hallucination-prompt, per described in our manuscript, run in the root directory of this folder: 
 
 ```
-python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --prompt-template sample_input_data/example_prompts/test_template.txt --prompt-job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
+python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --prompt-template sample_input_data/example_prompts/anti_hallucination_llm_prompt.txt --prompt-job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
 ```
 
 #### Inputs and Outputs for `score_cv`
@@ -91,4 +91,4 @@ python3 score_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sa
 
 ### Analyzing Outputted Resume Scores
 
-Code to first, compare the spreads of our resume scores across different large language models, and second, analyze how different binary threshold classifiers, subject to different FPR constraints, perform on our scored resume data can be found in significance_tests.ipynb.  
+Code to first, compare the spreads of our resume scores across different large language models, and second, analyze how different binary threshold classifiers, subject to different FPR constraints, perform on our scored resume data can be found in validation_tests/significance_tests.ipynb. 

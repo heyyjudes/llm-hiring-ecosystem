@@ -477,7 +477,6 @@ if __name__ == "__main__":
     prompt_job_description_name = args.prompt_job_description.name if args.prompt_job_description else None
     prompt_job_description_str = open(args.prompt_job_description, 'r').read() if args.prompt_job_description else None
 
-
     #Define Client
     if args.provider == 'together':
         client = TogetherAIClient(input_api_key = user_input_api_key,
