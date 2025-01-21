@@ -8,7 +8,6 @@ To install environment:
 
 ```
 conda env create -f env.yml
-
 ```
 
 ### Modifying and Scoring Resumes
