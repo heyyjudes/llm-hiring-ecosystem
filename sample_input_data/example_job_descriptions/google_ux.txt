@@ -1,0 +1,31 @@
+Minimum qualifications:
+Bachelor's degree in Design, Human-Computer Interaction, Computer Science, a related field, or equivalent practical experience.
+8 years of experience in product design or UX.
+Experience with industry standard design tools (e.g., Photoshop, Illustrator, Sketch, InVisio, Figma, Principle, etc.).
+Include a portfolio, website, or any other relevant link to your work in your resume (providing a viewable link or access instructions).
+
+Preferred qualifications:
+Experience creating and maintaining robust, coherent design systems that are usable across various devices and platforms.
+Experience shaping processes to establish and sustain a scalable and consistent design language.
+Proven track record of exploring and implementing innovative communication modes that are delightful, understandable, and accessible for diverse user groups, including designers, developers, and end-users.
+Demonstrated ability to provide a strong design perspective with fluency in native app patterns and user experiences.
+Strong collaboration skills within cross-functional product teams, including working with engineering, writers, editors, and researchers to refine and validate design decisions.
+About the job
+At Google, we follow a simple but vital premise: "Focus on the user and all else will follow." Google’s Interaction Designers take complex tasks and make them intuitive and easy-to-use for billions of people around the globe. Throughout the design process—from creating user flows and wireframes to building user interface mockups and prototypes—you’ll envision how people will experience our products, and bring that vision to life in a way that feels inspired, refined, and even magical.
+
+Google User Experience (UX) is made up of multi-disciplinary teams of UX Designers, Researchers, Writers, Content Strategists, Program Managers, and Engineers: we care deeply about the people who use our products. The UX team plays an integral part in gathering insights about the attitudes, emotions, and behaviors of people who use our products to inspire and inform design. We collaborate closely with each other and with engineering and product management to create industry-leading products that deliver value for the people who use them, and for Google’s businesses.
+
+As an Interaction Designer, you’ll rely on user-centered design methods to craft industry-leading user experiences—from concept to execution. Like all of our UX jobs, you’ll collaborate with your design partners to leverage and evolve the Google design language to build beautiful, innovative, inspired products that people love to use.
+
+Labs is a group focused on incubating early-stage efforts in support of Google’s mission to organize the world’s information and make it universally accessible and useful. Our team exists to help discover and create new ways to advance our core products through exploration and the application of new technologies. We work to build new solutions that have the potential to transform how users interact with Google. Our goal is to drive innovation by developing new Google products and capabilities that deliver significant impact over longer timeframes.
+
+The US base salary range for this full-time position is $168,000-$252,000 + bonus + equity + benefits. Our salary ranges are determined by role, level, and location. The range displayed on each job posting reflects the minimum and maximum target salaries for the position across all US locations. Within the range, individual pay is determined by work location and additional factors, including job-related skills, experience, and relevant education or training. Your recruiter can share more about the specific salary range for your preferred location during the hiring process.
+
+Please note that the compensation details listed in US role postings reflect the base salary only, and do not include bonus, equity, or benefits. Learn more about benefits at Google.
+
+Responsibilities
+Influence cross-functional stakeholders to gain support for design strategies, collaborating from early-stage concept development to iteration and execution.
+Drive the creation of innovative design solutions that address user needs, business objectives, and industry trends while furthering business outcomes.
+Build and iterate on Figma prototypes to communicate ideas, user journeys, and decision points, while exploring rapid visual design styles and interactions.
+Apply user-centered design principles, integrating UX research insights and AI-first interactions to create unique, multi-modal user experiences that drive product adoption.
+Provide direction to UX designers, manage priorities, dependencies, and stakeholders effectively, and independently drive work toward key milestones.

@@ -115,7 +115,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args=parse_args()
     
-    input_job_name = args.args.job_name if args.job_name else c.scalable_pm_job_name
+    input_job_name = args.job_name if args.job_name else c.scalable_pm_job_name
     input_job_desc = open(args.job_description, 'r').read() if args.job_description else c.scalable_pm_job_desc
 
     

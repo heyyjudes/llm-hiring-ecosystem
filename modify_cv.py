@@ -14,7 +14,8 @@ It outputs a csv, timestamped, with one column corresponding to the modified res
 
 Example Usage:
 python3 modify_cv.py test_cvs.csv test_folder --prompt-template test_template.txt --prompt-job-description scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
-
+python3 modify_cv.py jan_samples.csv jan_folder --prompt-template jan_prompt.txt --provider openai --model gpt-3.5-turbo --api-key llm_api_keys.yaml 
+  
 Example Input Files can be found in sample_input_data.
 """
 #Change generate_resume_messages -> format files that this code can take as an input. 
