@@ -8,6 +8,7 @@ Running score_cv takes the following three inputs - and outputs the scores of th
 4. Job Name (String, Optional) - defaults to "Scalable" Job Description: see Judy's slack messages.
 
 '''
+import os
 
 import pandas as pd
 import argparse
@@ -15,6 +16,8 @@ from typing import List, Dict, Union, Optional, Any
 from pathlib import Path
 from qdrant_client import QdrantClient
 import constants as c
+from tqdm import tqdm
+tqdm.pandas()
 
 NUM_RESUMES_SCORED = 0
 
@@ -58,7 +61,6 @@ def get_score(input_resume: str, job_description: str, verbose: bool = False) ->
     similarity_score = round(search_result[0].score * 100, 3)
     
     NUM_RESUMES_SCORED += 1
-    print(NUM_RESUMES_SCORED)
     return similarity_score 
 
 def return_scores(cv_s_dataframe: pd.DataFrame, job_name: str, job_description: str, verbose: bool=False):
@@ -73,7 +75,7 @@ def return_scores(cv_s_dataframe: pd.DataFrame, job_name: str, job_description: 
 
     # Score resumes.
     score = lambda resume : get_score(input_resume = resume, job_description = job_description, verbose = verbose)
-    scores_df[score_column_name] = cv_s_dataframe[cv_column_name].apply(score)
+    scores_df[score_column_name] = cv_s_dataframe[cv_column_name].progress_apply(score)
     return scores_df[[score_column_name]]
 
 def parse_args() -> argparse.Namespace:
@@ -84,14 +86,21 @@ def parse_args() -> argparse.Namespace:
 
     # Required arguments
     parser.add_argument(
-        "resumes",
+        "--resumes",
         type=Path,
         nargs='+',
         help="Path to one or more resume files to score"
     )
 
     parser.add_argument(
-        "outputdir",
+        "--resume_folder",
+        type=str,
+        default=None,
+        help="Path to one or more resume files to score"
+    )
+
+    parser.add_argument(
+        "--outputdir",
         type=Path,
         help="Path to location to save output dir."
     )
@@ -118,8 +127,13 @@ if __name__ == "__main__":
     input_job_name = args.job_name if args.job_name else c.scalable_pm_job_name
     input_job_desc = open(args.job_description, 'r').read() if args.job_description else c.scalable_pm_job_desc
 
-    
-    for resume_path in args.resumes:
+    resumes = args.resumes
+    if args.resume_folder is not None:
+        resumes = os.listdir(args.resume_folder)
+        resumes = [r for r in resumes if r.endswith(".csv")]
+        print(f"scoring entire folder: {resumes}")
+
+    for resume_path in resumes:
         output_scores = return_scores(cv_s_dataframe=pd.read_csv(str(resume_path), index_col=0), job_name=input_job_name, job_description=input_job_desc)
         
         new_file_name = "Scores_Job_Name_"+input_job_name+"_Original_File_"+resume_path.name

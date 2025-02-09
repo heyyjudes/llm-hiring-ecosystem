@@ -150,6 +150,72 @@ class AnthropicClient:
         cv_s_dataframe[modified_col_name] = output_resumes
         return cv_s_dataframe[[modified_col_name]]
 
+
+class DeepSeekClient:
+    """DeepSeek specific implementation:
+    Everything is similar except for the base_url: "https://api.deepseek.com"
+    """
+
+    def __init__(self, input_api_key: str, model: str, prompt_template_path: str, prompt_template: str,
+                 prompt_job_desc_filename: str, prompt_job_description: str):
+        # Initialize API client with api keys & model: also stores information about tailoring resume prompt for this run of the program.
+
+        self.client = OpenAI(api_key=input_api_key, base_url="https://api.deepseek.com")
+        self.model = model if model else 'deepseek-chat'
+        self.prompt_template_path = prompt_template_path
+        self.prompt_template = prompt_template
+        self.prompt_job_description_filename = prompt_job_desc_filename if prompt_job_desc_filename else ''
+        self.prompt_job_description = prompt_job_description if prompt_job_description else ''
+
+        current_datetime = datetime.now()
+        current_datetime_str = current_datetime.strftime('%Y_%m_%d_%H_%M_%S')
+        self.output_file_name = f"deepseek-{current_datetime_str}.jsonl"
+
+        self.time_marker = current_datetime_str
+        self.num_generated = 0
+
+        return
+
+    def format_messages(self, input_cv: str):
+        if self.prompt_template_path.endswith('.json'):
+            return format_message_json(self.prompt_template, input_cv, self.prompt_job_description)
+        return format_message_txt(prompt_template=self.prompt_template, input_cv=input_cv,
+                                  job_desc=self.prompt_job_description)
+
+    def __client_api_call_function(self, messages)->str:
+        #Private Method: from the inputs of an message, formats it into request that can be passed into the OpenAI API.
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages = messages
+        )
+        output = response.choices[0].message.content
+        return output
+
+    # The following functions achieve the same purpose of modifying resumes, but DO NOT use the new Batch API functionality.
+    def __generate_individal_cv(self, input_cv: str) -> str:
+        messages = self.format_messages(input_cv=input_cv)
+        output: str = self.__client_api_call_function(messages)
+        self.num_generated += 1
+        print(f"Generated {self.num_generated} resume.")
+        return output
+
+    def __generate_group_of_cv_s_from_individual_calls(self, cv_s_dataframe: pd.DataFrame):
+        # Generate modified column name
+        if len(cv_s_dataframe.columns) > 1:
+            raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
+
+        to_be_modified_col = cv_s_dataframe.columns[-1]
+        modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}"
+
+        # Generate resumes together.
+        generate = lambda cv: self.__generate_individal_cv(input_cv=cv)
+        cv_s_dataframe[modified_col_name] = cv_s_dataframe[to_be_modified_col].apply(generate)
+        return cv_s_dataframe[[modified_col_name]]
+
+    def generate_group_of_cv_s(self, cv_s_dataframe: pd.DataFrame):
+        # For deepseek: generate CVs from individual calls
+        return self.__generate_group_of_cv_s_from_individual_calls(cv_s_dataframe)
+
 class OpenAIClient:
     """OpenAI-specific implementation"""
     def __init__(self, input_api_key:str, model: str, prompt_template_path:str, prompt_template:str, prompt_job_desc_filename:str, prompt_job_description: str):
@@ -377,7 +443,7 @@ class TogetherAIClient:
             raise Exception("More than one column of resumes inputted. Please reformt input to only contain one column")
         
         to_be_modified_col = cv_s_dataframe.columns[-1]
-        modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}" 
+        modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}"
 
         #Iterative calls with Lambda Function
         generate = lambda cv : self.__generate_one_cv(input_cv = cv)
@@ -426,7 +492,7 @@ def parse_args() -> argparse.Namespace:
     provider_group = parser.add_argument_group('LLM Provider Options')
     provider_group.add_argument(
         "--provider",
-        choices=["anthropic", "openai", "together"],
+        choices=["anthropic", "openai", "together", "deepseek"],
         default="anthropic",
         help="LLM provider to use"
     )
@@ -500,6 +566,13 @@ if __name__ == "__main__":
                                   prompt_template_path=str(prompt_template_path),
                                   prompt_job_desc_filename=prompt_job_description_name,
                                   prompt_job_description = prompt_job_description_str)
+    elif args.provider == 'deepseek':
+        client = DeepSeekClient(input_api_key=user_input_api_key,
+                              model=args.model,
+                              prompt_template=formatted_prompt_template,
+                              prompt_template_path=str(prompt_template_path),
+                              prompt_job_desc_filename=prompt_job_description_name,
+                              prompt_job_description=prompt_job_description_str)
     else:
         raise ValueError("Provider client not found")
 
