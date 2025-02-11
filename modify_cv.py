@@ -208,8 +208,16 @@ class DeepSeekClient:
         modified_col_name = f"Modified_{self.model}_of_{to_be_modified_col}_Model{self.model}"
 
         # Generate resumes together.
-        generate = lambda cv: self.__generate_individal_cv(input_cv=cv)
-        cv_s_dataframe[modified_col_name] = cv_s_dataframe[to_be_modified_col].apply(generate)
+        generated_cvs = []
+        for i, cv in enumerate(cv_s_dataframe[to_be_modified_col]):
+            try:
+                generated_cvs.append(self.__generate_individal_cv(input_cv=cv))
+            except:
+                new_df = pd.DataFrame()
+                new_df[modified_col_name] = generated_cvs
+                new_df.to_csv(f"saved_generations_step_{i}.csv")
+
+        cv_s_dataframe[modified_col_name] = generated_cvs
         return cv_s_dataframe[[modified_col_name]]
 
     def generate_group_of_cv_s(self, cv_s_dataframe: pd.DataFrame):
