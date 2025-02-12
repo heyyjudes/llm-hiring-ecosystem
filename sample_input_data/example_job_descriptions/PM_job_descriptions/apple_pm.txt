@@ -1,0 +1,19 @@
+At Apple, we work every day to build products that enrich people’s lives. Our Advertising Platforms group makes it possible for people around the world to easily access informative and imaginative content on their devices while helping publishers and developers promote and monetize their work. Our technology and services power advertising in Apple News and Ads in the App Store. Our offline pipelines are highly performant, deployed to handle high-volume asynchronous events at scale, and set new standards for enabling effective advertising while protecting user privacy. We’re looking for an extraordinary Senior Product Manager to help define how digital advertising will work in a privacy-centric world. This role’s focus will be on building the next generation of integrations to support our third party partner ecosystem for advertising on our platform. The ideal candidate is an outstanding product lead who brings strong consumer product experience along with business market understanding to drive multi-year strategy and execution. It also requires a lead who can drive strategic alignment with product, engineering and cross-functional collaborators both internal and external to Apple. If you’re thrilled by the idea of changing how the world looks at digital advertising and joining a team where we pride ourselves in being one of the most diverse and inclusive companies in the world, a career with Apple might be your dream job!
+
+Description
+
+As a Product Manager for Ad Platforms, you will: - Be the subject matter expert on external 3rd party partner needs in terms of product integrations required, from campaign management to measurement, to support Apple’s advertising ecosystem. - Advocate and guide 3rd party partners to successfully run ads in Apple’s advertising ecosystem. - Work with business collaborators to define key objectives and ensure that product initiatives and features are linked to these objectives. - Work with internal and external collaborators to develop clear technical requirements required to support partner integrations - Develop new product cases, market and competitive analysis, product requirements documentation, and high-level release and go-to-market plans in order to support advertising demand growth driven by our partnerships. - Use market intelligence, competitive analysis, and partner outreach/feedback to prioritize and translate asks into concrete requirements that achieve shared goals for Apple and it’s partner. - Manage the product roadmap to help advertisers successfully measure the effectiveness of their campaigns. - Work closely with engineering and other product owners to identify critical paths, and to prioritize requirements for execution.
+
+Minimum Qualifications
+3+ years of full life cycle Product Management experience including: strategy, development, launch, optimization, sunset.
+Experience and deep understanding with consumer and advertising products and technologies for mobile platforms.
+Experience with 3rd party integrations supporting an advertising ecosystem including developing technical specifications
+Deep understanding and familiarity of technical requirements to enable and scale third party advertising integrations, with the focus on measurement and attribution
+Ability to clearly articulate product requirements to collaborators, engineering and internal business partners
+Experience working with cross-functional teams to define and drive product strategy and roadmap
+BS/BA degree required, ideally in computer science, economics, mathematics, or an equivalent field.
+
+Preferred Qualifications
+6+ years of full life cycle Product Management experience including: strategy, development, launch, optimization, sunset
+2+ years working within Advertising Technologies industry
+MBA/Advanced Degrees in similar fields a plus.

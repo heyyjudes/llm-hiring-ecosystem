@@ -4,15 +4,19 @@ This module provides functions to score resumes/CVs against inputted job descrip
 Running score_cv takes the following three inputs - and outputs the scores of the inputted CVs in .csv form:
 1. Input CVs (Filepath(s), Required)
 2. Output Directory (Filepath, Required)
-3. Job Description (String, Optional) - defaults to "Scalable" Job Description: see Judy's slack messages.
-4. Job Name (String, Optional) - defaults to "Scalable" Job Description: see Judy's slack messages.
+3. Job Description (String, Optional) - defaults to "Scalable" Job Description.
+4. Job Name (String, Optional) - defaults to "Scalable" Job Description
+
+# Example Input
+# make a folder score_resumes where you put the resumes you want to score
+# python3 score_cv.py --resume-folder score_resumes --job-name DD_PM --job-description doordash_pm.txt --output-dir test_folder
 
 '''
 import os
 
 import pandas as pd
 import argparse
-from typing import List, Dict, Union, Optional, Any
+from typing import List
 from pathlib import Path
 from qdrant_client import QdrantClient
 import constants as c
@@ -46,8 +50,11 @@ def get_score(input_resume: str, job_description: str, verbose: bool = False) ->
 
 
     documents: List[str] = [input_resume]
-    client = QdrantClient(":memory:")
+    client = QdrantClient(path="./local_model")
     client.set_model("BAAI/bge-base-en")
+
+    if client.get_collections().collections:
+        client.delete_collection(collection_name="demo_collection")
 
     client.add(
         collection_name="demo_collection",
@@ -59,16 +66,15 @@ def get_score(input_resume: str, job_description: str, verbose: bool = False) ->
     )
     # logger.info("Finished getting similarity score")
     similarity_score = round(search_result[0].score * 100, 3)
-    
     NUM_RESUMES_SCORED += 1
     return similarity_score 
 
-def return_scores(cv_s_dataframe: pd.DataFrame, job_name: str, job_description: str, verbose: bool=False):
+def return_scores(cv_s_dataframe: pd.DataFrame, job_name: str, job_description: str, verbose: bool=False) -> pd.DataFrame:
     if len(cv_s_dataframe.columns)>1:
         raise Exception("More than one column of resumes inputted. Reformat so there is only one.")
      
     cv_column_name= cv_s_dataframe.columns[-1]
-    score_column_name: str = f"{cv_column_name}{job_name} Score"
+    score_column_name: str = f"{cv_column_name} {job_name} Score"
 
     scores_df = pd.DataFrame(index=cv_s_dataframe.index)    
     scores_df[score_column_name] = pd.NA
@@ -93,14 +99,14 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--resume_folder",
+        "--resume-folder",
         type=str,
         default=None,
         help="Path to one or more resume files to score"
     )
 
     parser.add_argument(
-        "--outputdir",
+        "--output-dir",
         type=Path,
         help="Path to location to save output dir."
     )
@@ -118,7 +124,7 @@ def parse_args() -> argparse.Namespace:
         help='Job Name to be scored against.'
     )
     args = parser.parse_args()
-    args.outputdir.mkdir(parents=True, exist_ok=True)
+    args.output_dir.mkdir(parents=True, exist_ok=True)
     return args
 
 if __name__ == "__main__":
@@ -129,19 +135,30 @@ if __name__ == "__main__":
 
     resumes = args.resumes
     if args.resume_folder is not None:
+        folder_path = Path(args.resume_folder)
         resumes = os.listdir(args.resume_folder)
-        resumes = [r for r in resumes if r.endswith(".csv")]
-        print(f"scoring entire folder: {resumes}")
+        resumes = [folder_path / r for r in resumes if r.endswith(".csv")]
+        print(f"scoring entire folder: {folder_path}")
 
+    output_df_list = []
     for resume_path in resumes:
-        output_scores = return_scores(cv_s_dataframe=pd.read_csv(str(resume_path), index_col=0), job_name=input_job_name, job_description=input_job_desc)
-        
-        new_file_name = "Scores_Job_Name_"+input_job_name+"_Original_File_"+resume_path.name
-        new_file_name = new_file_name.replace("/", "_").replace(" ", "_")
-        if output_scores is not None:
-            output_scores.to_csv(str(args.outputdir)+"/"+new_file_name)
-        else:
-            print("No scores outputted. Refer to previous error logs.")
+        print(resume_path)
+        input_csv = pd.read_csv(str(resume_path), index_col='id')
+        output_df = return_scores(cv_s_dataframe=input_csv,
+                                      job_name=input_job_name,
+                                      job_description=input_job_desc)
+        output_df_list.append(output_df)
 
-#Example Input
-#python3 score_cv.py test_folder/Modified_openai_gpt-4_Custom_test_cvs.csv test_folder 
+    if len(output_df_list) < 1:
+        print("No scores outputted. Refer to previous error logs.")
+    else:
+        if len(output_df_list) == 1:
+            new_file_name = "Scores"+input_job_name+"_Original_File_"+resume_path.name
+            new_file_name = new_file_name.replace("/", "_").replace(" ", "_")
+            final_df = output_df_list[0]
+        else:
+            final_df = pd.concat(output_df_list, axis=1)
+            new_file_name = "-".join(["Scores", input_job_name, f"{folder_path.name}.csv"])
+            new_file_name = new_file_name.replace("/", "_").replace(" ", "_")
+
+        final_df.to_csv(str(args.output_dir)+"/"+new_file_name)

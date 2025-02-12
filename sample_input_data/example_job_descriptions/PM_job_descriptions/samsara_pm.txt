@@ -1,0 +1,38 @@
+Samsara's Product team works to bring our disruptive IoT technology to market, accelerating the adoption of sensor data to improve the safety, efficiency, and sustainability of fleets & other operations-focused businesses that power the global economy. As a member of the Product team, you'll be responsible for the success of new products and features that delight our customers and further Samsara's vision. Samsara's approach to product management is rooted in a deep understanding of the customer. You'll learn about our customers' operations, identify the most meaningful problems that we could solve for them, and develop a product vision that maximizes the impact Samsara can make on the market.
+
+As an Associate Product Manager (APM), you'll participate in a formal training program alongside your peers as part of an APM cohort. Through this program, you'll gain hands-on experience managing products, get exposure to different teams across Samsara's business, and learn from mentors who are seasoned product managers. We'll start with the fundamentals, helping you understand how to successfully run beta programs and launch features that will have a big impact on our customers. From there, you'll learn about how to work with engineers & designers to build features end-to-end, and even own the roadmap for a small product area.
+
+Our APM program is rotational — you'll spend two ~9-month rotations working on different parts of our product, which includes mobile apps, web software, hardware devices, and more. Upon completion of the program, APM's have the opportunity for formal placement into exciting PM roles across the company to continue advancing their careers at Samsara. The APM role is ideal for those with technical backgrounds who want to move into a career in Product, but may not have had prior product management experience.
+
+Please note that the program duration is 18 months. The program will start August 2025 and end February 2027. This is a full-time position.
+
+This is a remote position in the United States and is eligible for all US locations. If students would like to relocate after they graduate, relocation assistance will not be provided for this role. We are not currently hiring MBAs for this role and if a student is pursuing a Master's degree, it must be part of a co-terminal (co-term) program. At this time, only students graduating in a technical field, such as Computer Science, Electrical Engineering, Information Systems, Data Science, Cognitive Science etc. are eligible to be considered for this role.
+
+You should apply if:
+
+You want to make a difference: The software, firmware, and hardware you build will result in real-world impact—helping to keep the lights on, get food into grocery stores, and most importantly, ensure workers return home safely.
+You build for scale: Samsara already has millions of IoT devices deployed globally with customers that depend on our technology and look forward to the new solutions brought about by our engineers' innovation. You may work on a mature product that is operating at a large scale already or a product in the early stages that is still being developed.
+You believe customers are more than a number: Samsara engineers enjoy a rare closeness to the end user and you will have the opportunity to participate in customer interviews, collaborate with customer success and product managers, and use metrics to ensure our work is translating into better customer outcomes.
+You crave technical ownership: The development of our Connected Operations Cloud technology has only just begun and offers a range of technical challenges that will sharpen your skills and provide opportunities for rapid career growth.
+Click here to learn about what we value at Samsara.
+
+In this role, you will:
+
+Learn the core skills of product management through an "apprenticeship-style" program with training & a formal mentor
+Gather customer and stakeholder feedback through well-structured beta programs to get features ready for launch
+Manage the end-to-end launch of a new feature, enabling customers & internal teams, and measuring the success of new features during roll-out
+Have the opportunity to interact with & learn from our executive team — because of our transparent culture, you'll have a front-row seat to understanding how to scale a growth-stage company to becoming a major industry player
+As you grow, lead the development of new features in collaboration with Design, Engineering, and Marketing, and even manage a small roadmap
+Champion, role model, and embed Samsara's cultural principles (Focus on Customer Success, Build for the Long Term, Adopt a Growth Mindset, Be Inclusive, Win as a Team) as we scale globally and across new offices
+Requirements for this role:
+
+A minimum of a 3.5 GPA
+We are looking for builders in this role. As Samsara shifts its focus to building and expanding our product line, it is critical to hire individuals who will enable us to achieve these objectives across all tiers of the organization.
+Experience building a product, a startup, an application, a nonprofit (or equivalent) as a founding member or co-founder is a requirement of the role.
+0 years of experience in a full-time product management role (product management internships are acceptable)
+Currently in the process of obtaining a Bachelor's degree in Computer Science, Electrical Engineering, Information Systems, or another technical discipline. The degree must be completed by the time of joining Samsara with a target timeline of Spring 2025
+Prior evidence of strong intellectual curiosity & leadership skills
+Knack for gleaning insights from quantitative and qualitative data
+Bias-to-action — you're not afraid to get your hands dirty to help your team and have an impact on our customers
+Demonstrated attention to detail and structured thinking
+Excellent written & verbal communication skills

@@ -1,0 +1,27 @@
+Full job description
+Rowan Technology is looking to add a talented and agile Creative Technologist to our growing team that builds innovative digital learning products for universities.
+
+A NYC-based digital publisher and interactive technology company, Rowan has recently expanded their operations to include full-scale print academic publishing and will soon rebrand as the West Point Press. As such, with tens-of-thousands of existing users - across many universities and the general public - the reach of Rowan’s digital publishing is expanding.
+
+JOB DESCRIPTION
+
+The Creative Technologist role is ideal for a capable and talented designer who loves to occasionally experiment with code. They are responsible for creating complex and immersive digital experiences that capture and maintain the learner's interest. The selected candidate can create and work across a variety of mediums (including interactives, video, images, maps, text, audio, 3D models, maps, etc) to produce innovative and compelling content from the ground-up.
+
+The candidate should be comfortable with learning and using some web-based coding libraries and frameworks (HTML/CSS/JavaScript, and libraries) to supplement custom functionality, though previous experience is not required. They will also provide occasional guidance user interface/user experience (UI/UX) as we continuously improve our suite of software tools.
+
+The designer will join a small, but rapidly growing and interdisciplinary team experienced in design, software development, cartography, publishing, marketing and sales.
+
+Minimum requirements include:
+
+BA/BS in graphic design, interactive design, digital media, computer arts, computer science, architecture, or similar discipline.
+Extensive knowledge of design principles, including color theory, composition, type, hierarchy, and layout.
+Demonstrated proficiency in creative industry standard software (Adobe Photoshop, Illustrator, InDesign and After Effects).
+Knowledge of HTML/CSS, and comfort working with/learning Javascript and related libraries.
+Moderate proficiency in 3D modeling software (Rhino/Maya/3DS Max/Unity etc).
+Experience with UI/UX (User Interface/User Experience) design.
+Preferred experience:
+
+Interactive design, such as with Tumult Hype
+JavaScript frameworks like P5, D3, Canvas, JQuery, React, Angular, etc.
+Mapping, particularly with ArcGIS or QGIS
+Video editing, including Premiere After Effects
