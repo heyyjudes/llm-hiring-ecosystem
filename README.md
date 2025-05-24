@@ -29,7 +29,7 @@ This repository provides implementations for experiments in the paper to verify 
 The Djinni dataset file which we used to generate results for the effectiveness of our two ticket system in Table 1 ('Table1_Experimental_Modified_Resumes/Original_CV.csv) can be downloaded from:
 - [Stereotypes in Recruitment Dataset](https://github.com/Stereotypes-in-LLMs/recruitment-dataset) - Downloaded All Data, and Filtered for first 260 Product Manager and first 260 UI/UX designer resumes.
 
-The Djinni dataset file which we used to generate results for the effectiveness of different LLM tools and their performance against different job descriptions in Figure 1 (data under 'Figure1_100Samples/Resumes/original.csv') is a subset of our above data: namely we filtered for the first \textit{50} out of 260 Product Manager and first \textit{50} 260 UI/UX designer resumes.
+The Djinni dataset file which we used to generate results for the effectiveness of different LLM tools and their performance against different job descriptions in Figure 1 (data under 'Figure1_100Samples/Resumes/original.csv') is a subset of our above data: namely we filtered for the first 50 out of 260 Product Manager and first 50 260 UI/UX designer resumes.
 
 ### Job Descriptions Data
 The two job descriptions used to generate results for resume scores in Table 1 can be found here:
@@ -41,13 +41,14 @@ The remaining job descriptions used to generate results for resume scores in Fig
 ### LLM Tools
 
 We used the following LLMs to perform manipulations on our input resumes:
-- ChatGPT 3.5
-- ChatGPT 4.0 - mini
-- ChatGPT 4.0
-- [Calude 3-5 snooet]('claude-3-sonnet-20240229')
-- Deepsek v3
-- Deepske 3.5
-- Llama
+- GPT-3.5-Turbo-0125
+- GPT-4o-mini
+- GPT-4o-2024-08-06 
+- Claude-3.5-Sonnet
+- DeepSeek-67B
+- DeepSeek-V3 DeepSeek 
+- Mixtral-8x7b-Instruct
+- Llama3.3-70B-Instruct-Turbo
 
 The paper details more about the sequence of LLM manipulations. 
 
