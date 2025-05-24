@@ -149,7 +149,7 @@ python3 score_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sa
 
 ## Experiments
 
-After generating and scoring our resumes on the relevant job descriptions, we also analyzed the results with statistical inference techniques and plotted them to create Figures 1 and Tables 1 of our final manuscript. 
+After generating and scoring our resumes on the relevant job descriptions, we also analyzed the results with statistical inference techniques and plotted resulting scores to create Figures 1 and Tables 1 of our final manuscript. 
 
 - **Evaluating the Two-Ticket System**: [significance_tests.ipynb](Table1_Experimental_Modified_Resumes/validation_tests/signifiance_test.ipynb) Implements our Two-Ticket Algorithm and demonstrates how it compares against traditional Threshold Classifiers (Section 7 of our paper).
 - **Comparing Different LLMs**: [final_figures.ipynb](final_figures.ipynb) Code to create final figures comparing the effecitiveness of different LLMs against different job descriptions (Section 3 of our paper and Appendix Section B). 
