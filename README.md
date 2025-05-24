@@ -33,8 +33,8 @@ The Djinni dataset file which we used to generate results for the effectiveness 
 
 ### Job Descriptions Data
 The two job descriptions used to generate results for resume scores in Table 1 can be found here:
-- [DoorDash PM Job Description](sample_input_data/example_job_descriptions/doordash_pm.txt)  - the description was drawn directly from [here](https://careersatdoordash.com/jobs/product-manager-multiple-levels/5523275/).
-- [Google UX Designer Job Description]('sample_input_data/example_job_descriptions/google_ux.txt') - the job description has since been taken down from the Google Portal but was downloaded from the 2024 recruitment cycle.
+- [DoorDash PM Job Description]('sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt')  - the description was drawn directly from [here](https://careersatdoordash.com/jobs/product-manager-multiple-levels/5523275/).
+- [Google UX Designer Job Description]('sample_input_data/example_job_descriptions/UX_job_descriptions/google_ux.txt') - the job description has since been taken down from the Google Portal but was downloaded from the 2024 recruitment cycle.
 
 The remaining job descriptions used to generate results for resume scores in Figure 1 can be found in the [folder]('sample_input_data/example_job_descriptions').
 
