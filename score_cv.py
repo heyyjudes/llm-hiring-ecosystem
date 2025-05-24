@@ -4,8 +4,8 @@ This module provides functions to score resumes/CVs against inputted job descrip
 Running score_cv takes the following three inputs - and outputs the scores of the inputted CVs in .csv form:
 1. Input CVs (Filepath(s), Required)
 2. Output Directory (Filepath, Required)
-3. Job Description (String, Optional) - defaults to "Scalable" Job Description.
-4. Job Name (String, Optional) - defaults to "Scalable" Job Description
+3. Job Description (String, Optional) - defaults to "DoorDash PM" Job Description.
+4. Job Name (String, Optional) - defaults to "DoorDash PM" Job Description
 
 # Example Input
 # make a folder score_resumes where you put the resumes you want to score
@@ -130,8 +130,8 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args=parse_args()
     
-    input_job_name = args.job_name if args.job_name else c.scalable_pm_job_name
-    input_job_desc = open(args.job_description, 'r').read() if args.job_description else c.scalable_pm_job_desc
+    input_job_name = args.job_name if args.job_name else c.doordash_pm_job_name
+    input_job_desc = open(args.job_description, 'r').read() if args.job_description else c.doordash_pm_job_desc
 
     resumes = args.resumes
     if args.resume_folder is not None:

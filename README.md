@@ -114,7 +114,7 @@ It outputs a csv, timestamped, with one column corresponding to the modified res
 To test modify_cv.py with our example files and anti-hallucination-prompt, per described in our manuscript, run in the root directory of this folder: 
 
 ```
-python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --prompt-template sample_input_data/example_prompts/anti_hallucination_llm_prompt.txt --prompt-job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
+python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --prompt-template sample_input_data/example_prompts/anti_hallucination_llm_prompt.txt --prompt-job-description sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt --provider openai --api-key llm_api_keys.yaml 
 ```
 
 #### Inputs and Outputs for `score_cv`
@@ -134,17 +134,17 @@ The `score_cv` function takes the following inputs and outputs the scores of the
 3. **Job Description**  
    - **Type**: String  
    - **Optional**  
-   - **Default**: `"Scalable"` Job Description (see `sample_input_data/example_job_descriptions`).
+   - **Default**: [`"DoorDash PM"` Job Description]('sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt').
 
 4. **Job Name**  
    - **Type**: String  
    - **Optional**  
-   - **Default**: `"Scalable"` Job Description (see `sample_input_data/example_job_descriptions`).
+   - **Default**: `"DoorDash PM"` (see above for description).
 
 It is natural to run score_cv.py on the output resumes of modify_cv.py (and input resumes too). To test score_cv.py with our example files, run in the root directory of this folder: 
 
 ```
-python3 score_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --job-name Scalable
+python3 score_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --job-description sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt --job-name DoorDash
 ```
 
 ## Experiments
