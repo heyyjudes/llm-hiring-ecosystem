@@ -66,7 +66,7 @@ The paper details more about the sequence of LLM manipulations.
    conda env create -f env.yml
    ```
 
-## Experiments
+## Generating Resumes
 
 ### Modifying and Scoring Resumes
 
@@ -147,7 +147,7 @@ It is natural to run score_cv.py on the output resumes of modify_cv.py (and inpu
 python3 score_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --job-name Scalable
 ```
 
-### Analyzing Outputted Resume Scores
+## Experiments
 
 After generating and scoring our resumes on the relevant job descriptions, we also analyzed the results with statistical inference techniques and plotted them to create Figures 1 and Tables 1 of our final manuscript. 
 
