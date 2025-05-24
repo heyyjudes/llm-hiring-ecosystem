@@ -36,7 +36,7 @@ The two job descriptions used to generate results for resume scores in Table 1 c
 - [DoorDash PM Job Description](sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt)  - the description was drawn directly from [here](https://careersatdoordash.com/jobs/product-manager-multiple-levels/5523275/).
 - [Google UX Designer Job Description](sample_input_data/example_job_descriptions/UX_job_descriptions/google_ux.txt) - the job description has since been taken down from the Google Portal but was downloaded from the 2024 recruitment cycle.
 
-The remaining job descriptions used to generate results for resume scores in Figure 1 can be found in the [folder](sample_input_data/example_job_descriptions).
+The remaining job descriptions used to generate results for resume scores in Figure 1 can be found in this [folder](sample_input_data/example_job_descriptions).
 
 ### LLM Tools
 
@@ -50,7 +50,7 @@ We used the following LLMs to perform manipulations on our input resumes:
 - Mixtral-8x7b-Instruct
 - Llama3.3-70B-Instruct-Turbo
 
-The paper details more about the sequence of LLM manipulations. 
+The final paper contains details about the sequence of LLM manipulations. 
 
 ## Installation
 
@@ -66,11 +66,9 @@ The paper details more about the sequence of LLM manipulations.
    conda env create -f env.yml
    ```
 
-## Generating Resumes
+## Manipulating & Modifying Resumes
 
-### Modifying and Scoring Resumes
-
-modify_cv.py is a Python script that improves/modifies resumes/CVs using various LLM APIs given a set of inputted resumes and custom prompts.
+modify_cv.py is a Python script that first improves/modifies resumes/CVs using various LLM APIs given a set of inputted resumes and custom prompts. score_cv.py then scores inputted resumes against inputted job descriptions.
 
 #### Inputs and Outputs for modify_cv.py
 
@@ -122,6 +120,8 @@ python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv s
 #### Inputs and Outputs for `score_cv`
 
 The `score_cv` function takes the following inputs and outputs the scores of the inputted CVs in `.csv` format:
+
+##### Input Parameters
 
 1. **Input CVs**  
    - **Type**: Filepath(s)  
