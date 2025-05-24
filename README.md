@@ -1,94 +1,90 @@
-## Algorithmic Hiring in LLM Ecosystems 
+## Two Tickets are Better than One: Fair and Accurate Hiring Under Strategic LLM Manipulations
 
-This repository contains code to first: modify resumes with existing large language models (found in modify_cv.py) and score them against existing job descriptions (score_cv.py).
+This repository contains code and experiments for the ICML paper [Two Tickets are Better than One: Fair and Accurate Hiring Under Strategic LLM Manipulations](https://www.arxiv.org/abs/2502.13221).
 
-### Setup
+## Abstract
+In an era of increasingly capable foundation models, job seekers are turning to generative AI tools to
+enhance their application materials. However, unequal access to and knowledge about generative AI tools
+can harm both employers and candidates by reducing the accuracy of hiring decisions and giving some
+candidates an unfair advantage. To address these challenges, we introduce a new variant of the strategic
+classification framework tailored to manipulations performed using large language models, accommodating
+varying levels of manipulations and stochastic outcomes. We propose a “two-ticket” scheme, where
+the hiring algorithm applies an additional manipulation to each submitted resume and considers this
+manipulated version together with the original submitted resume. We establish theoretical guarantees
+for this scheme, showing improvements for both the fairness and accuracy of hiring decisions when the
+true positive rate is maximized subject to a no false positives constraint. We further generalize this
+approach to an n-ticket scheme and prove that hiring outcomes converge to a fixed, group-independent
+decision, eliminating disparities arising from differential LLM access. Finally, we empirically validate our
+framework and the performance of our two-ticket scheme on real resumes using an open-source resume
+screening tool.
 
-To install environment:
+## Overview
+
+This repository provides implementations for experiments in the paper to verify the theoretical improvements of our "two-ticket" scheme. We use part of the [Djinni Recruitment Dataset](https://huggingface.co/datasets/lang-uk/recruitment-dataset-candidate-profiles-english/blob/main/README.md) dataset for sample resumes, and their matched occupations (i.e. Product Manager, UI/UX designer, etc.). We also then draw from various online job postings for the relevant job descriptions we score our resumes against. 
+
+## Data & LLM Tools
+
+### Djinni Recruitment Dataset
+
+The Djinni dataset file which we used to generate results for the effectiveness of our two ticket system in Table 1 ('Table1_Experimental_Modified_Resumes/Original_CV.csv) can be downloaded from:
+- [Stereotypes in Recruitment Dataset](https://github.com/Stereotypes-in-LLMs/recruitment-dataset) - Downloaded All Data, and Filtered for first 260 Product Manager and first 260 UI/UX designer resumes.
+
+The Djinni dataset file which we used to generate results for the effectiveness of different LLM tools and their performance against different job descriptions in Figure 1 (data under 'Figure1_100Samples/Resumes/original.csv') is a subset of our above data: namely we filtered for the first \textit{50} out of 260 Product Manager and first \textit{50} 260 UI/UX designer resumes.
+
+### Job Descriptions Data
+The two job descriptions used to generate results for resume scores in Table 1 can be found here:
+- [DoorDash PM Job Description]('sample_input_data/example_job_descriptions/doordash_pm.txt')  - the description was drawn directly from [here](https://careersatdoordash.com/jobs/product-manager-multiple-levels/5523275/).
+- [Google UX Designer Job Description]('sample_input_data/example_job_descriptions/google_ux.txt') - the job description has since been taken down from the Google Portal but was downloaded from the 2024 recruitment cycle.
+
+The remaining job descriptions used to generate results for resume scores in Figure 1 can be found in the folder [sample_input_data/example_job_descriptions].
+
+### LLM Tools
+
+We used the following LLMs to perform manipulations on our input resumes:
+- ChatGPT 3.5
+- ChatGPT 4.0 - mini
+- ChatGPT 4.0
+- [Calude 3-5 snooet]('claude-3-sonnet-20240229')
+- Deepsek v3
+- Deepske 3.5
+- Llama
+
+The paper details more about the sequence of LLM manipulations. 
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/heyyjudes/llm-hiring-ecosystem.git
+   cd llm-hiring-ecosystem
+   ```
+
+2. **Install required libraries:**
+   The main dependencies are listed in `env.yml`. Install them with:
+   ```
+   conda env create -f env.yml
+   ```
+
+## Experiments
+
+- **Ski Rental**: [ski_rental.ipynb](ski-rental.ipynb) Demonstrates algorithms for the ski rental problem using calibrated machine learning predictions (Section 3 of our paper).
+- **Online Scheduling**: [scheduling.ipynb](scheduling.ipynb) Implements scheduling algorithms with calibrated predictions (Section 4 of our paper).
+
+Both notebooks rely on several other files: 
+- `calibration.py` contains classes for Histogram Calibration, Bin Calibration, and Platt Scaling. 
+- `model.py` contains models we use for the base predictors. 
+- `ski_rental.py` contains helper functions for calculating competitive ratio.  
+
+
+## Citation
+
+If you use this code or find it helpful, please cite our paper:
+```
+@article{cohen2025ticketsbetteronefair,
+  title={Two Tickets are Better than One: Fair and Accurate Hiring Under Strategic LLM Manipulations},
+  author={Cohen, Lee and Hsieh, Jack and Hong, Connie, and Shen, Judy},
+  journal={arXiv preprint arXiv:2502.13221},
+  year={2025}
+}
 
 ```
-conda env create -f env.yml
-```
-
-### Modifying and Scoring Resumes
-
-modify_cv.py is a Python script that improves/modifies resumes/CVs using various LLM APIs given a set of inputted resumes and custom prompts.
-
-#### Inputs and Outputs for modify_cv.py
-
-Running modify_cv takes in the following inputs and outputs the modified CVs in a .csv file. Optional inputs also have default values in the code:
- 
-##### Input Parameters
-
-1. **Input CVs**  
-   - **Type**: Filepath(s)  
-   - **Required**
-
-2. **Output Directory**  
-   - **Type**: Filepath  
-   - **Required**
-
-3. **Prompt Template**  
-   - **Type**: Filepath (`.json` or `.txt`)  
-   - **Required**  
-   - **Details**: Prompt with a placeholder for `{original_cv}` (optional placeholder for `{job_description}`). We recommend using '.txt' files if you only need to interface with the LLM-API as a "user". Otherwise, check the example-json prompt template to interface with the LLM-API as an assistant (in addition to user).
-
-4. **Job Description for Prompt**  
-   - **Type**: `.txt`  
-   - **Optional**  
-   - **Details**: User-inputted prompt for the last prompt type.
-
-5. **LLM Provider**  
-   - **Type**: String  
-   - **Options**: `OpenAI`, `Together`, `Anthropic`  
-   - **Required**
-
-6. **API-Key**  
-   - **Type**: Filepath  
-   - **Required**  
-   - **Details**: Path to the `api_keys.yaml` file.
-
-7. **Model**  
-   - **Type**: String  
-   - **Optional**  
-   - **Details**: Name of the model to use (besides default).
-
-It outputs a csv, timestamped, with one column corresponding to the modified resume/CV text. 
-
-To test modify_cv.py with our example files and anti-hallucination-prompt, per described in our manuscript, run in the root directory of this folder: 
-
-```
-python3 modify_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --prompt-template sample_input_data/example_prompts/anti_hallucination_llm_prompt.txt --prompt-job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --provider openai --api-key llm_api_keys.yaml 
-```
-
-#### Inputs and Outputs for `score_cv`
-
-The `score_cv` function takes the following inputs and outputs the scores of the inputted CVs in `.csv` format:
-
-1. **Input CVs**  
-   - **Type**: Filepath(s)  
-   - **Required**
-
-2. **Output Directory**  
-   - **Type**: Filepath  
-   - **Required**
-
-3. **Job Description**  
-   - **Type**: String  
-   - **Optional**  
-   - **Default**: `"Scalable"` Job Description (see `sample_input_data/example_job_descriptions`).
-
-4. **Job Name**  
-   - **Type**: String  
-   - **Optional**  
-   - **Default**: `"Scalable"` Job Description (see `sample_input_data/example_job_descriptions`).
-
-It is natural to run score_cv.py on the output resumes of modify_cv.py (and input resumes too). To test score_cv.py with our example files, run in the root directory of this folder: 
-
-```
-python3 score_cv.py sample_input_data/example_input_cvs/three_example_cvs.csv sample_input_data/example_output_data --job-description sample_input_data/example_job_descriptions/scalable_job_description.txt --job-name Scalable
-```
-
-### Analyzing Outputted Resume Scores
-
-Code to first, compare the spreads of our resume scores across different large language models, and second, analyze how different binary threshold classifiers, subject to different FPR constraints, perform on our scored resume data can be found in validation_tests/significance_tests.ipynb. 
