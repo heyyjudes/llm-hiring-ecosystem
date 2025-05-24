@@ -134,7 +134,7 @@ The `score_cv` function takes the following inputs and outputs the scores of the
 3. **Job Description**  
    - **Type**: String  
    - **Optional**  
-   - **Default**: [`"DoorDash PM"` Job Description](sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt).
+   - **Default**: `"DoorDash PM"` [Job Description](sample_input_data/example_job_descriptions/PM_job_descriptions/doordash_pm.txt).
 
 4. **Job Name**  
    - **Type**: String  
